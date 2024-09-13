@@ -1,0 +1,32 @@
+<resources>
+  <string name="person_input">Add person</string>
+  <string name="person_detail">Edit person</string>
+  <string name="people_list">People</string>
+  <string name="firstname">Firstname</string>
+  <string name="lastname">Lastname</string>
+  <string name="email">Email Address</string>
+  <string name="phone">Phone number</string>
+  <string name="errorCharMin">2</string>
+  <string name="errorCharMax">16</string>
+  <string name="errorFirstnameTooShort">Firstname is too short</string>
+  <string name="errorFirstnameTooLong">First name is too long</string>
+  <string name="errorLastNameTooShort">Last name is too short</string>
+  <string name="errorLastNameTooLong">Lastname is too long</string>
+  <string name="errorEmail">Email address is invalid</string>
+  <string name="errorPhone">Phone number is invalid</string>
+  <string name="send">Send</string>
+  <string name="save">Save</string>
+  <string name="back">Back</string>
+  <string name="undoDeletePerson">Are you sure you want to delete this person?</string>
+  <string name="undoAnswer">No</string>
+  <string name="permissionRequired">Permission required</string>
+  <string name="permissionCamera">The app requires access to the camera to take a photo.</string>
+  <string name="permissionAudio">"The app needs access to your microphone, to transmit youre voice. "</string>
+  <string name="declinedAudio">" Apparently you have permanently denied microphone sharing. You can now only grant permission via app settings."</string>
+  <string name="declinedCamera">Apparently you have permanently denied camera sharing. You can now only grant permission via app settings.</string>
+  <string name="refuse">refuse</string>
+  <string name="agree">Agree</string>
+  <string name="selectPhotoFromGallery">Please select a photo</string>
+  <string name="takePhotoWithCamera">Please take a photo</string>
+
+</resources>

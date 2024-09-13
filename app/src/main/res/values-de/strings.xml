@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="person_input">Person hinzufügen</string>
+  <string name="person_detail">Person bearbeiten</string>
+  <string name="people_list">Personen</string>
+  <string name="firstname">Vorname</string>
+  <string name="lastname">Nachname</string>
+  <string name="email">E-Mail Adresse</string>
+  <string name="phone">Telefonnummer</string>
+  <string name="errorCharMin">2</string>
+  <string name="errorCharMax">16</string>
+  <string name="errorFirstnameTooShort">Vorname ist zu kurz</string>
+  <string name="errorFirstnameTooLong">Vorname ist zu lang</string>
+  <string name="errorLastNameTooShort">Nachname ist zu kurz</string>
+  <string name="errorLastNameTooLong">Nachname ist zu lang</string>
+  <string name="errorEmail">E-Mail Adresse ist ungültig</string>
+  <string name="errorPhone">Telefonnummer ist ungültig</string>
+  <string name="send">Senden</string>
+  <string name="save">Speichern</string>
+  <string name="back">Zurück</string>
+  <string name="undoDeletePerson">Sind Sie sicher, dass Sie diese Person löschen möchten?</string>
+  <string name="undoAnswer">Nein</string>
+  <string name="permissionRequired">Erlaubnis erforderlich</string>
+  <string name="permissionCamera">Die App erfordert den Zugriff auf die Kamera, um ein Foto aufzunehmen.</string>
+  <string name="permissionAudio">Die App benötigt Zugriff auf Ihr Mikrofon, um Ihre Stimme zu übertragen.</string>
+  <string name="declinedCamera">Anscheinend haben Sie die Kamera Freigabe dauerhaft verweigert. Sie können die Erlaubnis jetzt nur noch über App-Einstellungen gewähren.</string>
+  <string name="declinedAudio">Anscheinend haben Sie die Mikrofon Freigabe dauerhaft verweigert. Sie können die Erlaubnis jetzt nur noch über App-Einstellungen gewähren.</string>
+  <string name="refuse">Ablehnen</string>
+  <string name="agree">Zustimmen</string>
+  <string name="selectPhotoFromGallery">Bitte wählen Sie ein Foto aus</string>
+  <string name="takePhotoWithCamera">Bitte nehmen Sie ein Foto auf</string>
+</resources>
