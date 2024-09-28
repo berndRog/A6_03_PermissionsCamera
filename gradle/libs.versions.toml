@@ -1,26 +1,29 @@
 [versions]
 activityCompose = "1.9.2"
 coilCompose = "2.7.0"
-compose = "1.7.0"
+compose = "1.7.2"
 core = "1.13.1"
-composeBom = "2024.09.00"
-koin = "3.5.6"
-kotlinCoroutines = "1.8.1"
+composeBom = "2024.09.02"
+koin = "4.0.0"
+kotlinCoroutines = "1.9.0"
+kotlinxDatetime = "0.6.1"
 kotlinxSerializationJson = "1.6.3"
-lifecycle = "2.8.5"
-navigation = "2.8.0"
+lifecycle = "2.8.6"
+mapsCompose = "6.1.2"
+navigation = "2.8.1"
 # testing
 androidTestCore = "1.6.1"
 espresso = "3.6.1"
 extJunit = "1.2.1"
 junit = "4.13.2"
 truth = "1.6.0"
-manifest = "1.7.0"
+manifest = "1.7.2"
 # plugins
-agp = "8.6.0"
+agp = "8.6.1"
 kotlin = "1.9.24"
 ksp = "1.9.24-1.0.20"
-uiTextGoogleFonts = "1.7.0"
+uiTextGoogleFonts = "1.7.2"
+playServicesLocation = "21.3.0"
 
 [libraries]
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "activityCompose" }
@@ -30,6 +33,7 @@ androidx-compose-ui = { group = "androidx.compose.ui", name = "ui" }
 androidx-compose-ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics" }
 androidx-compose-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview" }
 androidx-compose-material3 = { group = "androidx.compose.material3", name = "material3" }
+androidx-ui-text-google-fonts = { group = "androidx.compose.ui", name = "ui-text-google-fonts", version.ref = "uiTextGoogleFonts" }
 androidx-lifecycle-runtime-compose = { module = "androidx.lifecycle:lifecycle-runtime-compose", version.ref = "lifecycle" }
 androidx-lifecycle-runtime-ktx = { module = "androidx.lifecycle:lifecycle-runtime-ktx", version.ref = "lifecycle" }
 androidx-lifecycle-viewmodel-compose = { module = "androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "lifecycle" }
@@ -41,12 +45,15 @@ coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coilCompose"
 core-ktx = { module = "androidx.test:core-ktx", version.ref = "androidTestCore" }
 junit = { module = "junit:junit", version.ref = "junit" }
 koin-bom = { module = "io.insert-koin:koin-bom", version.ref = "koin" }
-koin-android = { group = "io.insert-koin", name = "koin-android", version = "3.5.6" }
+koin-android = { group = "io.insert-koin", name = "koin-android", version = "4.0.0" }
 koin-android-compat = { module = "io.insert-koin:koin-android-compat", version.ref = "koin" }
 koin-androidx-compose = { module = "io.insert-koin:koin-androidx-compose", version.ref = "koin" }
 kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "kotlinCoroutines" }
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinCoroutines" }
+kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinxDatetime" }
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
+maps-compose = { module = "com.google.maps.android:maps-compose", version.ref = "mapsCompose" }
+play-services-location = { group = "com.google.android.gms", name = "play-services-location", version.ref = "playServicesLocation" }
 material-icons-extended = { module = "androidx.compose.material:material-icons-extended", version.ref = "compose" }
 # testing
 androidx-core = { module = "androidx.test:core", version.ref = "androidTestCore" }
@@ -64,11 +71,10 @@ koin-test-junit5 = { module = "io.insert-koin:koin-test-junit5", version.ref = "
 kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinCoroutines" }
 # debugging
 androidx-ui-test-manifest = { module = "androidx.compose.ui:ui-test-manifest", version.ref = "manifest" }
-androidx-ui-text-google-fonts = { group = "androidx.compose.ui", name = "ui-text-google-fonts", version.ref = "uiTextGoogleFonts" }
-
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
-kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 jetbrains-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 google-devtools-ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
+
+google-map-secrets = {id = "com.google.android.libraries.mapsplatform.secrets-gradle-plugin", version="2.0.0"}

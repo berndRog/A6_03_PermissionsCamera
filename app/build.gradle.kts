@@ -11,6 +11,8 @@ plugins {
    alias(libs.plugins.jetbrains.kotlin.android)
    alias(libs.plugins.google.devtools.ksp)
    alias(libs.plugins.kotlin.serialization)
+
+   alias(libs.plugins.google.map.secrets)
 }
 
 /**
@@ -86,7 +88,8 @@ dependencies {
    // https://kotlinlang.org/docs/releases.html
    implementation (libs.kotlinx.coroutines.core)
    implementation (libs.kotlinx.coroutines.android)
-
+   // https://github.com/Kotlin/kotlinx-datetime
+   implementation (libs.kotlinx.datetime)
    // Ui Activity
    // https://developer.android.com/jetpack/androidx/releases/activity
    implementation(libs.androidx.activity.compose)
@@ -120,6 +123,12 @@ dependencies {
    // https://coil-kt.github.io/coil/
    implementation(libs.coil.compose)
 
+   //
+   // Google Maps Compose
+   implementation (libs.maps.compose)
+   // Play Services Location for FusedLocationProvider
+   implementation(libs.play.services.location)
+
    // Koin
    // https://insert-koin.io/docs/3.2.0/getting-started/android/
    implementation(platform(libs.koin.bom))
@@ -131,6 +140,7 @@ dependencies {
    // Ktor/Kotlin JSON Serializer
    implementation(libs.kotlinx.serialization.json)
    implementation(libs.androidx.ui.text.google.fonts)
+   implementation(libs.play.services.location)
    // TESTS -----------------------
    testImplementation(libs.junit)
    testImplementation(libs.koin.test)

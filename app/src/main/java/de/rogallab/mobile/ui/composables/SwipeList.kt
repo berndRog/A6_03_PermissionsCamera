@@ -41,7 +41,7 @@ fun SetSwipeBackgroud(swipeToDismissBoxState: SwipeToDismissBoxState) {
          .fillMaxSize()
          .background(
             color = colorBox,
-            shape = RoundedCornerShape(12.dp)
+            shape = RoundedCornerShape(10.dp)
          )
          .padding(horizontal = 16.dp),
       contentAlignment = alignment

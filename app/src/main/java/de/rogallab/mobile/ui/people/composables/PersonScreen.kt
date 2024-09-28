@@ -51,6 +51,7 @@ import de.rogallab.mobile.ui.errors.ErrorParams
 import de.rogallab.mobile.ui.errors.ErrorUiState
 import de.rogallab.mobile.ui.errors.showError
 import de.rogallab.mobile.ui.navigation.NavEvent
+import de.rogallab.mobile.ui.navigation.NavScreen
 import de.rogallab.mobile.ui.people.PeopleViewModel
 import de.rogallab.mobile.ui.people.PersonUiState
 
@@ -83,7 +84,7 @@ fun PersonScreen(
          viewModel.onErrorEvent(
             ErrorParams(
                message = "No id for person is given",
-               navEvent = NavEvent.Back
+               navEvent = NavEvent.NavigateBack(NavScreen.PeopleList.route)
             )
          )
       }
@@ -91,9 +92,8 @@ fun PersonScreen(
 
    BackHandler{
       logInfo(tag, "BackHandler -> navigate to Peoplelist")
-      viewModel.navigateTo(NavEvent.Back)
+      viewModel.navigateTo(NavEvent.NavigateBack(NavScreen.PeopleList.route))
    }
-
 
    val windowInsets = WindowInsets.systemBars
       .add(WindowInsets.captionBar)
@@ -112,8 +112,9 @@ fun PersonScreen(
             title = { Text(text = screenTitle) },
             navigationIcon = {
                IconButton(onClick = {
-                  logDebug(tag, "Up (reverse) navigation")
+                  logDebug(tag, "Reverse navigation")
                   viewModel.validate(isInputMode)
+                  viewModel.navigateTo(NavEvent.NavigateReverse(NavScreen.PeopleList.route))
                }) {
                   Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                      contentDescription = stringResource(R.string.back))

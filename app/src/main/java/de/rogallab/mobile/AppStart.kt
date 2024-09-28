@@ -8,12 +8,13 @@ class AppStart : Application() {
    override fun onCreate() {
       super.onCreate()
       val maxMemory = (Runtime.getRuntime().maxMemory() / 1024 ).toInt()
-      logInfo(tag, "onCreate() maxMemory $maxMemory kB")
+      logInfo(TAG, "onCreate() maxMemory $maxMemory kB")
    }
 
    companion object {
-      private const val tag = "[AppStart]"
-      const val isDebug = true
-      const val isInfo = true
+      private const val TAG = "<-AppStart"
+      const val ISDEBUG = true
+      const val ISINFO = true
+      const val ISVERBOSE = true
    }
 }

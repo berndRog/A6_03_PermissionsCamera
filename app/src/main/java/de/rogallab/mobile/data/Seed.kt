@@ -57,68 +57,73 @@ class Seed(
       drawables.add(2, R.drawable.man_3)
       drawables.add(3, R.drawable.man_4)
       drawables.add(4, R.drawable.man_5)
-      drawables.add(5, R.drawable.woman_1)
-      drawables.add(6, R.drawable.woman_2)
-      drawables.add(7, R.drawable.woman_3)
-      drawables.add(8, R.drawable.woman_4)
-      drawables.add(9, R.drawable.woman_5)
+      drawables.add(5, R.drawable.man_6)
+      drawables.add(6, R.drawable.woman_1)
+      drawables.add(7, R.drawable.woman_2)
+      drawables.add(8, R.drawable.woman_3)
+      drawables.add(9, R.drawable.woman_4)
+      drawables.add(10, R.drawable.woman_5)
 
       drawables.forEach { it: Int ->  // drawable id
          val bitmap = BitmapFactory.decodeResource(resources, it)
-         bitmap?.let { bitmap ->
-            writeImageToStorage(context, bitmap)?.let { uriPath: String? ->
+         bitmap?.let { itbitm ->
+            writeImageToStorage(context, itbitm)?.let { uriPath: String? ->
                uriPath?.let { _imagesUri.add(uriPath) }
             }
          }
       }
 
-      if (_imagesUri.size == 10) {
+      if (_imagesUri.size == 11) {
          people[0] = people[0].copy(
             localImagePath = _imagesUri[0],
             imageUrl = _imagesUri[0]
          )
          people[1] = people[1].copy(
-            localImagePath = _imagesUri[5],
-            imageUrl = _imagesUri[5]
+            localImagePath = _imagesUri[6],
+            imageUrl = _imagesUri[6]
          )
          people[2] = people[2].copy(
             localImagePath = _imagesUri[1],
             imageUrl = _imagesUri[1]
          )
          people[3] = people[3].copy(
-            localImagePath = _imagesUri[6],
-            imageUrl = _imagesUri[6]
+            localImagePath = _imagesUri[7],
+            imageUrl = _imagesUri[7]
          )
          people[4] = people[4].copy(
             localImagePath = _imagesUri[2],
             imageUrl = _imagesUri[2]
          )
          people[5] = people[5].copy(
-            localImagePath = _imagesUri[7],
-            imageUrl = _imagesUri[7]
+            localImagePath = _imagesUri[8],
+            imageUrl = _imagesUri[8]
          )
          people[6] = people[6].copy(
             localImagePath = _imagesUri[3],
             imageUrl = _imagesUri[3]
          )
          people[7] = people[7].copy(
-            localImagePath = _imagesUri[8],
-            imageUrl = _imagesUri[8]
+            localImagePath = _imagesUri[9],
+            imageUrl = _imagesUri[9]
          )
          people[8] = people[8].copy(
             localImagePath = _imagesUri[4],
             imageUrl = _imagesUri[4]
          )
          people[9] = people[9].copy(
-            localImagePath = _imagesUri[9],
-            imageUrl = _imagesUri[9]
+            localImagePath = _imagesUri[10],
+            imageUrl = _imagesUri[10]
+         )
+         people[10] = people[10].copy(
+            localImagePath = _imagesUri[5],
+            imageUrl = _imagesUri[5]
          )
       }
    }
 
    fun disposeImages() {
       _imagesUri.forEach { imageUrl ->
-         logDebug("[disposeImages]", "Url $imageUrl")
+         logDebug("<disposeImages>", "Url $imageUrl")
          deleteFileOnStorage(imageUrl)
       }
    }

@@ -16,7 +16,7 @@ fun readImageFromStorage(uri: Uri): Bitmap? =
       BitmapFactory.decodeFile(uri.toFile().absolutePath)
          ?: throw IOException("BitmapFactory.decodeFile() returned null")
    } catch (e: IOException) {
-      logError("[readImageFromInternalStorage]", e.localizedMessage)
+      logError("<-readImageFromInternalStorage", e.localizedMessage!!)
       throw e
    }
 
@@ -38,7 +38,7 @@ fun writeImageToStorage(
          file.absolutePath // return absolute path
       }
    } catch (e: IOException) {
-      logError("[writeImageToInternalStorage]", e.localizedMessage)
+      logError("<-writeImageToInternalStorage", e.localizedMessage!!)
       throw e
    }
 
@@ -49,6 +49,6 @@ fun deleteFileOnStorage(fileName:String) {
          this.absoluteFile.delete()
       }
    } catch(e:IOException ) {
-      logError("deleteFileOnInternalStorage","Error deleting file + ${e.localizedMessage}")
+      logError("<-deleteFileOnInternalStorage",e.localizedMessage!!)
    }
 }

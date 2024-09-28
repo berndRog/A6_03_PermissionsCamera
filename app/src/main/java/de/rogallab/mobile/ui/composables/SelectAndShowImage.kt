@@ -18,7 +18,6 @@ fun SelectAndShowImage(
    imageUrl: String?,                                 // State ↓
    onImageUrlChange: (String?) -> Unit,              // Event ↑
 ) {
-   val tag = "[SelectAndShowImage]"
 
    Row(
       modifier = Modifier
@@ -26,13 +25,13 @@ fun SelectAndShowImage(
          .fillMaxWidth()
    ) {
       imageUrl?.let { url:String ->                  // State ↓
-         logDebug("[SelectAndShowImage]","imageUrl $url")
+         logDebug("<-SelectAndShowImage","imageUrl $url")
          AsyncImage(
-            model = url,
-            contentDescription = "Bild des Kontakts",
             modifier = Modifier
                .size(width = 150.dp, height = 200.dp)
                .clip(RoundedCornerShape(percent = 5)),
+            model = url,
+            contentDescription = "Bild des Kontakts",
             alignment = Alignment.Center,
             contentScale = ContentScale.Crop
          )

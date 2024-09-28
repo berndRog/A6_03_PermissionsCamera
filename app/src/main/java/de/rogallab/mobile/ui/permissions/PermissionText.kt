@@ -28,24 +28,13 @@ class PermissionRecordAudio : IPermissionText {
       }
    }
 }
-class PermissionPhoneCall : IPermissionText {
-   override fun getDescription(context: Context, isPermanentlyDeclined: Boolean): String {
-      return if (isPermanentlyDeclined) {
-         "Es scheint als hätten Sie den Zugriff auf Anrufen mehrfach abgelehnt. " +
-            "Sie können diese Entscheidung nur über die App Einstellungen ändern."
-      } else {
-         "Die App erfordert den Zugriff auf das Telefon, um einen Anruf durchführen zu können."
-      }
-   }
-}
-/*
+
 class PermissionCoarseLocation : IPermissionText {
    override fun getDescription(context: Context, isPermanentlyDeclined: Boolean): String {
       return if (isPermanentlyDeclined) {
-         "Es scheint als hätten Sie den Zugriff auf die ungefähre Ortsbestimmung mehrfach abgelehnt. "+
-            "Sie können diese Berechtigung nur noch über die App Einstellungen ändern."
+         context.getString(R.string.declinedCoarseLocation)
       } else {
-         "Die App erfordert den Zugriff auf die ungefähre Ortsbestimmung, um ihre Position zu ermitteln."
+         context.getString(R.string.permissionCoarseLocation)
       }
    }
 }
@@ -53,11 +42,20 @@ class PermissionCoarseLocation : IPermissionText {
 class PermissionFineLocation : IPermissionText {
    override fun getDescription(context: Context, isPermanentlyDeclined: Boolean): String {
       return if (isPermanentlyDeclined) {
-         "Es scheint als hätten Sie den Zugriff auf die genaue Ortsbestimmung mehrfach abgelehnt. " +
-            "Sie können diese Berechtigung nur noch über die App Einstellungen ändern."
+         context.getString(R.string.declinedFineLocation)
       } else {
-         "Die App erfordert die den Zugriff auf die genaue Ortsbestimmung, um ihre genaue Position zu ermitteln."
+         context.getString(R.string.permissionFineLocation)
       }
    }
 }
-*/
+
+//class PermissionPhoneCall : IPermissionText {
+//   override fun getDescription(context: Context, isPermanentlyDeclined: Boolean): String {
+//      return if (isPermanentlyDeclined) {
+//         "Es scheint als hätten Sie den Zugriff auf Anrufen mehrfach abgelehnt. " +
+//            "Sie können diese Entscheidung nur über die App Einstellungen ändern."
+//      } else {
+//         "Die App erfordert den Zugriff auf das Telefon, um einen Anruf durchführen zu können."
+//      }
+//   }
+//}

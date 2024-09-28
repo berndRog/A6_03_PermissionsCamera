@@ -1,4 +1,5 @@
 <resources>
+  <string name="app_name">PermissionsCamera</string>
   <string name="person_input">Add person</string>
   <string name="person_detail">Edit person</string>
   <string name="people_list">People</string>
@@ -22,11 +23,16 @@
   <string name="permissionRequired">Permission required</string>
   <string name="permissionCamera">The app requires access to the camera to take a photo.</string>
   <string name="permissionAudio">"The app needs access to your microphone, to transmit youre voice. "</string>
-  <string name="declinedAudio">" Apparently you have permanently denied microphone sharing. You can now only grant permission via app settings."</string>
-  <string name="declinedCamera">Apparently you have permanently denied camera sharing. You can now only grant permission via app settings.</string>
+  <string name="permissionCoarseLocation">The app requires access to coarse geolocation to determine your position.</string>
+  <string name="permissionFineLocation">The app requires access to fine geolocation to determine its position.</string>
+  <string name="declinedAudio">Unfortunately you have permanently denied microphone sharing. You can now only grant permission via app settings.</string>
+  <string name="declinedCamera">Unfortunately you have permanently denied camera sharing. You can now only grant permission via app settings.</string>
+  <string name="declinedCoarseLocation">Unfortunately, you have permanently denied access to coarse location sharing. You can now only grant permission via the app settings.</string>
+  <string name="declinedFineLocation">Unfortunately, you have permanently denied access to fine location sharing. You can now only grant permission via the app settings.</string>
   <string name="refuse">refuse</string>
   <string name="agree">Agree</string>
   <string name="selectPhotoFromGallery">Please select a photo</string>
   <string name="takePhotoWithCamera">Please take a photo</string>
-
+  <string name="locations_list">Locations</string>
+  <string name="sensors_list">Sensors</string>
 </resources>

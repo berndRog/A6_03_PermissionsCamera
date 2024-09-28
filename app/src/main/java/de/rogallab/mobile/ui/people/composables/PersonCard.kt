@@ -28,6 +28,7 @@ fun PersonCard(
 ) {
    Card(
       modifier = modifier.fillMaxWidth(),
+      shape = RoundedCornerShape(percent = 10),
    ) {
       Row(
          verticalAlignment = Alignment.CenterVertically,
@@ -63,7 +64,8 @@ fun PersonCard(
                   contentDescription = "Bild der Person",
                   modifier = Modifier
                      .size(width = 60.dp, height = 75.dp)
-                     .clip(RoundedCornerShape(percent = 15)),
+                     .clip(RoundedCornerShape(percent = 15))
+                     .padding(end = 8.dp).padding(vertical = 4.dp),
                   alignment = Alignment.Center,
                   contentScale = ContentScale.Crop
                )

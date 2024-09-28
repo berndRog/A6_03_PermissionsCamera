@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+  <string name="app_name">PermissionsCamera</string>
   <string name="person_input">Person hinzufügen</string>
   <string name="person_detail">Person bearbeiten</string>
   <string name="people_list">Personen</string>
@@ -23,10 +24,16 @@
   <string name="permissionRequired">Erlaubnis erforderlich</string>
   <string name="permissionCamera">Die App erfordert den Zugriff auf die Kamera, um ein Foto aufzunehmen.</string>
   <string name="permissionAudio">Die App benötigt Zugriff auf Ihr Mikrofon, um Ihre Stimme zu übertragen.</string>
+  <string name="permissionFineLocation">Die App erfordert den Zugriff auf die genaue Ortsbestimmung, um ihre Position zu ermitteln.</string>
+  <string name="permissionCoarseLocation">Die App erfordert den Zugriff auf die ungefähre Ortsbestimmung, um ihre Position zu ermitteln.</string>
   <string name="declinedCamera">Anscheinend haben Sie die Kamera Freigabe dauerhaft verweigert. Sie können die Erlaubnis jetzt nur noch über App-Einstellungen gewähren.</string>
   <string name="declinedAudio">Anscheinend haben Sie die Mikrofon Freigabe dauerhaft verweigert. Sie können die Erlaubnis jetzt nur noch über App-Einstellungen gewähren.</string>
+  <string name="declinedCoarseLocation">Leider haben Sie den Zugriff auf die ungefähre Standortfreigabe dauerhaft verweigert. Sie können die Berechtigung jetzt nur noch über die App-Einstellungen erteilen.</string>
+  <string name="declinedFineLocation">Leider haben Sie den Zugriff auf die grobe Standortfreigabe dauerhaft verweigert. Sie können die Berechtigung jetzt nur noch über die App-Einstellungen erteilen.</string>
   <string name="refuse">Ablehnen</string>
   <string name="agree">Zustimmen</string>
   <string name="selectPhotoFromGallery">Bitte wählen Sie ein Foto aus</string>
   <string name="takePhotoWithCamera">Bitte nehmen Sie ein Foto auf</string>
+  <string name="locations_list">Standorte</string>
+  <string name="sensors_list">Sensoren</string>
 </resources>
