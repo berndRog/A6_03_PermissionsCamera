@@ -2,16 +2,18 @@ package de.rogallab.mobile.ui.sensors.environment_orientation.composables
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.add
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeGestures
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -27,24 +29,28 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import de.rogallab.mobile.R
-import de.rogallab.mobile.ui.navigation.AppBottomBar
-import de.rogallab.mobile.ui.sensors.environment_orientation.EnvOriSensorsViewModel
-import de.rogallab.mobile.ui.sensors.environment_orientation.EnvOriUiState
+import de.rogallab.mobile.domain.utilities.toLocalDateTime
+import de.rogallab.mobile.domain.utilities.toTimeString
+import de.rogallab.mobile.ui.navigation.composables.AppBottomBar
+import de.rogallab.mobile.ui.navigation.NavEvent
+import de.rogallab.mobile.ui.sensors.environment_orientation.SensorsUiState
+import de.rogallab.mobile.ui.sensors.environment_orientation.SensorsViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SensorsListScreen(
-   viewModel: EnvOriSensorsViewModel,
+   viewModel: SensorsViewModel,
    navController: NavController
 ) {
 
    // Environment & Orientation sensors state
-   val envOriUiStateFlow: EnvOriUiState
-      by viewModel.envOriUiStateFlow.collectAsStateWithLifecycle()
+   val sensorsUiState: SensorsUiState
+      by viewModel.sensorsUiStateFlow.collectAsStateWithLifecycle()
 
    val snackbarHostState = remember { SnackbarHostState() }
 
@@ -61,19 +67,16 @@ fun SensorsListScreen(
             title = { Text(text = stringResource(R.string.sensors_list)) },
             navigationIcon = {
                IconButton(
-                  onClick = {
-                     // Finish the app
-                     //
-                  }
+                  onClick = { viewModel.navigateTo(NavEvent.NavigateHome) }
                ) {
-                  Icon(imageVector = Icons.Default.Menu,
+                  Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                      contentDescription = stringResource(R.string.back))
                }
             }
          )
       },
       bottomBar = {
-         AppBottomBar(navController = navController)
+         AppBottomBar(navController, viewModel)
       },
       snackbarHost = {
          SnackbarHost(hostState = snackbarHostState) { data ->
@@ -82,18 +85,51 @@ fun SensorsListScreen(
       }
    ) { paddingValues: PaddingValues ->
 
-
-
       LazyColumn(
          modifier = Modifier
             .padding(paddingValues = paddingValues)
-            .padding(horizontal = 16.dp)
+            .padding(end = 16.dp),
       ) {
-//         items(
-//            items = mEnvOriUiStateFlow.ringBuffer.toList(),
-//         ) { it: EnvOriUiState ->
-//            Text(text = "Yaw: ${orientation.yaw}, Pitch: ${orientation.pitch}, Roll: ${orientation.roll}")
-//         }
+         val sensorValues = sensorsUiState.ringBuffer
+            .toList()
+            .sortedByDescending { it.epochMillis }
+
+         item {
+            Row(modifier = Modifier.fillMaxWidth()) {
+               Text(modifier = Modifier.weight(0.25f),
+                  text = "Time",
+                  textAlign = TextAlign.End)
+               Text(modifier = Modifier.weight(0.2f),
+                  text = "Yaw",
+                  textAlign = TextAlign.End)
+               Text(modifier = Modifier.weight(0.2f),
+                  text = "Pitch",
+                  textAlign = TextAlign.End)
+               Text(modifier = Modifier.weight(0.2f),
+                  text = "Roll",
+                  textAlign = TextAlign.End)
+            }
+         }
+
+         items(
+            count = sensorValues.size,
+         ) { it: Int ->  // index
+
+            Row(modifier = Modifier.fillMaxWidth()) {
+               Text(modifier = Modifier.weight(0.25f),
+                  text = toLocalDateTime(sensorValues[it].epochMillis).toTimeString(),
+                  textAlign = TextAlign.End)
+               Text(modifier = Modifier.weight(0.2f),
+                  text = String.format("%.1f", sensorValues[it].yaw),
+                  textAlign = TextAlign.End)
+               Text(modifier = Modifier.weight(0.2f),
+                  text = String.format("%.1f", sensorValues[it].pitch),
+                  textAlign = TextAlign.End)
+               Text(modifier = Modifier.weight(0.2f),
+                  text = String.format("%.1f", sensorValues[it].roll),
+                  textAlign = TextAlign.End)
+            }
+         }
       }
    }
 }

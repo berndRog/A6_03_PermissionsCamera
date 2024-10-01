@@ -25,7 +25,7 @@ fun SelectAndShowImage(
          .fillMaxWidth()
    ) {
       imageUrl?.let { url:String ->                  // State ↓
-         logDebug("<-SelectAndShowImage","imageUrl $url")
+         // logDebug("<-SelectAndShowImage","imageUrl $url")
          AsyncImage(
             modifier = Modifier
                .size(width = 150.dp, height = 200.dp)

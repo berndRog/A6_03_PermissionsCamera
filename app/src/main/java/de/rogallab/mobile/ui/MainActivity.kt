@@ -2,7 +2,6 @@ package de.rogallab.mobile.ui
 
 import android.app.Activity
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
 import android.provider.Settings
@@ -14,9 +13,9 @@ import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Surface
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -26,27 +25,44 @@ import androidx.lifecycle.repeatOnLifecycle
 import de.rogallab.mobile.domain.utilities.logError
 import de.rogallab.mobile.domain.utilities.logInfo
 import de.rogallab.mobile.ui.base.BaseActivity
+import de.rogallab.mobile.ui.base.LocationsViewModelFactory
+import de.rogallab.mobile.ui.base.PeopleViewModelFactory
+import de.rogallab.mobile.ui.base.SensorsViewModelFactory
+import de.rogallab.mobile.ui.base.SettingsViewModelFactory
 import de.rogallab.mobile.ui.home.HomeScreen
-import de.rogallab.mobile.ui.navigation.AppNavHost
-import de.rogallab.mobile.ui.navigation.AppDrawer
+import de.rogallab.mobile.ui.navigation.NavigationViewModel
+import de.rogallab.mobile.ui.navigation.composables.AppDrawer
+import de.rogallab.mobile.ui.navigation.composables.AppNavHost
 import de.rogallab.mobile.ui.people.PeopleViewModel
 import de.rogallab.mobile.ui.permissions.RequestPermissions
+import de.rogallab.mobile.ui.sensors.environment_orientation.SensorsViewModel
 import de.rogallab.mobile.ui.sensors.location.LocationsViewModel
-import de.rogallab.mobile.ui.sensors.environment_orientation.EnvOriSensorsViewModel
+import de.rogallab.mobile.ui.settings.SettingsViewModel
 import de.rogallab.mobile.ui.theme.AppTheme
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.launch
 
 class MainActivity : BaseActivity(TAG) {
 
-   private val _peopleViewModel by viewModels<PeopleViewModel>()
-   private val _locationsViewModel by viewModels<LocationsViewModel>()
-   private val _sensorsViewModel by viewModels<EnvOriSensorsViewModel>()
+   private val _peopleViewModel: PeopleViewModel by viewModels {
+      PeopleViewModelFactory(application)
+   }
+   private val _locationsViewModel: LocationsViewModel by viewModels {
+      LocationsViewModelFactory(application)
+   }
+   private val _sensorsViewModel: SensorsViewModel by viewModels {
+      SensorsViewModelFactory(application)
+   }
+   private val _settingsViewModel: SettingsViewModel by viewModels {
+      SettingsViewModelFactory(application)
+   }
+
+   private val _navigationsViewModel: NavigationViewModel by viewModels()
 
    override fun onCreate(savedInstanceState: Bundle?) {
       super.onCreate(savedInstanceState)
 
-      // or the orientation sensors there are no permissions to request
+      // environment & orientation sensors don't need permissions to request
       lifecycle.addObserver(_sensorsViewModel)
 
       setContent {
@@ -59,7 +75,7 @@ class MainActivity : BaseActivity(TAG) {
                ModalNavigationDrawer(
                   drawerState = drawerState,
                   drawerContent = {
-                     AppDrawer(drawerState = drawerState, scope = scope)
+                     AppDrawer(drawerState, _navigationsViewModel, scope)
                   }
                ) {
 
@@ -88,8 +104,11 @@ class MainActivity : BaseActivity(TAG) {
                   // Show the app content if permissions are granted
                   if (permissionsGranted) {
                      AppNavHost(
+                        peopleViewModel = _peopleViewModel,
                         locationsViewModel = _locationsViewModel,
-                        envOriSensorsViewModel = _sensorsViewModel,
+                        sensorsViewModel = _sensorsViewModel,
+                        settingsViewModel = _settingsViewModel,
+                        navigationViewModel = _navigationsViewModel,
                         drawerState = drawerState
                      )
                   } else if (permissionsGranted == false) {
@@ -113,12 +132,6 @@ class MainActivity : BaseActivity(TAG) {
             _locationsViewModel.onStateChanged(this@MainActivity, Lifecycle.Event.ON_RESUME)
          }
       }
-   }
-
-   private fun getPermissionsFromManifest(): Array<String> {
-      val packageInfo = packageManager
-         .getPackageInfo(packageName, PackageManager.GET_PERMISSIONS)
-      return packageInfo.requestedPermissions ?: emptyArray()
    }
 
    companion object {

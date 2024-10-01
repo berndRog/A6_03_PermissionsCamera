@@ -10,41 +10,48 @@ import de.rogallab.mobile.domain.utilities.logInfo
 import de.rogallab.mobile.domain.utilities.toLocalDateTime
 import de.rogallab.mobile.domain.utilities.toTimeString
 
-class EnvOriSensorsManager(
+class AppSensorsManager(
    context: Context,
-   private val _updateInterval: Long = 5000L
+   private val _updateInterval: Long = 60000L
 ) {
 
    // Sensor Manager
    private val _sensorManager: SensorManager =
       context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
 
-   // Enviroment sensors
+   // Environment sensors
    private val _pressureSensor = _sensorManager.getDefaultSensor(Sensor.TYPE_PRESSURE)
    private val _lightSensor = _sensorManager.getDefaultSensor(Sensor.TYPE_LIGHT)
-   private val _temperatureSensor = _sensorManager.getDefaultSensor(Sensor.TYPE_AMBIENT_TEMPERATURE)
-   private val _humiditySensor = _sensorManager.getDefaultSensor(Sensor.TYPE_RELATIVE_HUMIDITY)
+   private val _proximitySensor = _sensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY)
+
    // Orientation sensors
-   private val _magnetometerSensor = _sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD)
-   private val _gravitySensor = _sensorManager.getDefaultSensor(Sensor.TYPE_GRAVITY)
    private val _accSensor = _sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
-   private val _rotVecSensor = _sensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR)
+   private val _magnetometerSensor = _sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD)
+// private val _rotVecSensor = _sensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR)
 
    // Environment data
    private var _pressure: Float = 0f
    private var _light: Float = 0f
-   private var _temperature: Float = 0f
-   private var _humidity: Float = 0f
    // Orientation data arrays
    private val _magnetometerData = FloatArray(3)
-   private val _gravityData = FloatArray(3)
    private val _accData = FloatArray(3)
+// private val _rotVector = FloatArray(4)
    private val _rotMatrix = FloatArray(9)
    private val _inclinationMatrix = FloatArray(9)
    private val _orientationAngles = FloatArray(3)
+   private var _isRotVecSensorAvailable = false
+
+
+   init {
+      val deviceSensors: List<Sensor> = _sensorManager.getSensorList(Sensor.TYPE_ALL)
+      logInfo(TAG, "Available sensors: ${deviceSensors.size}")
+      deviceSensors.forEach { it ->
+         logInfo(TAG, "Available sensor: ${it.name} - ${it.stringType}")
+      }
+   }
 
    // Callback for sensor updates
-   var onEnvOriValuesChanged: (SensorValues) -> Unit = { }
+   var onSensorValuesChanged: (SensorValues) -> Unit = { }
 
    private var _currentTime: Long = 0L
    private var _lastUpdateTime = 0L
@@ -58,31 +65,23 @@ class EnvOriSensorsManager(
             // Environment sensors
             Sensor.TYPE_PRESSURE -> _pressure = event.values[0]
             Sensor.TYPE_LIGHT -> _light = event.values[0]
-            Sensor.TYPE_AMBIENT_TEMPERATURE -> _temperature = event.values[0]
-            Sensor.TYPE_RELATIVE_HUMIDITY -> _humidity = event.values[0]
 
             // Orientation sensors
             Sensor.TYPE_ACCELEROMETER ->
                System.arraycopy(event.values, 0, _accData, 0, _accData.size)
             Sensor.TYPE_MAGNETIC_FIELD ->
                System.arraycopy(event.values, 0, _magnetometerData, 0, _magnetometerData.size)
-            Sensor.TYPE_GRAVITY ->
-               System.arraycopy(event.values, 0, _gravityData, 0, _gravityData.size)
-            Sensor.TYPE_ROTATION_VECTOR -> {
-               // If rotation vector is available, use it directly for orientation
-               SensorManager.getRotationMatrixFromVector(_rotMatrix, event.values)
-               SensorManager.getOrientation(_rotMatrix, _orientationAngles)
-            }
+//          Sensor.TYPE_ROTATION_VECTOR -> {
+//             System.arraycopy(event.values, 0,  _rotVector, 0, event.values.size)
+//             _isRotVecSensorAvailable = true
+//          }
          }
-
          // Only update if the custom interval has passed
          _currentTime = System.currentTimeMillis()
          if (_currentTime - _lastUpdateTime < _updateInterval) return
          _lastUpdateTime = _currentTime
 
-         val dt = toLocalDateTime(_currentTime).toTimeString()
-         logInfo(TAG, "updateSensorData() $dt")
-         updateEnvOriValues()
+         updateSensorValues()
       }
 
       override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {
@@ -95,31 +94,49 @@ class EnvOriSensorsManager(
       }
    } // SensorEventListener
 
-   private fun updateEnvOriValues() {
-      var envOriSensorValues = SensorValues(
-         epochMillis = System.currentTimeMillis(),
+   private fun updateSensorValues() {
+
+      var sensorValues = SensorValues(
+         epochMillis = _currentTime,
          pressure = _pressure,
-         light = _light,
-         temperature = _temperature,
-         humidity = _humidity
+         light = _light
       )
+//      if (_isRotVecSensorAvailable) {
+//         // Use rotation vector sensor if available (higher accuracy)
+//         if (_rotVector.size == 4) {
+//            // Normalize the quaternion
+//            val q0 = _rotVector[3]
+//            val q1 = _rotVector[0]
+//            val q2 = _rotVector[1]
+//            val q3 = _rotVector[2]
+//            val norm = Math.sqrt((q0 * q0 + q1 * q1 + q2 * q2 + q3 * q3).toDouble())
+//            _rotVector[0] = (q1 / norm).toFloat()
+//            _rotVector[1] = (q2 / norm).toFloat()
+//            _rotVector[2] = (q3 / norm).toFloat()
+//            _rotVector[3] = (q0 / norm).toFloat()
+//         }
+//         SensorManager.getRotationMatrixFromVector(_rotMatrix, _rotVector)
+//         SensorManager.getOrientation(_rotMatrix, _orientationAngles)
+//      } else if
       if (_accData.isNotEmpty() && _magnetometerData.isNotEmpty()) {
+         // Fallback to accelerometer and magnetometer (less accurate)
          if (SensorManager.getRotationMatrix(_rotMatrix, _inclinationMatrix, _accData, _magnetometerData)) {
             SensorManager.getOrientation(_rotMatrix, _orientationAngles)
-            // Azimuth (orientationAngles[0]) gives the angle relative to magnetic north
-            val azimuth = Math.toDegrees(_orientationAngles[0].toDouble()).toFloat()
-
-            // Yaw, Pitch, Roll + Azimuth
-            envOriSensorValues = envOriSensorValues.copy(
-               yaw = _orientationAngles[0],
-               pitch = _orientationAngles[1],
-               roll = _orientationAngles[2],
-               azimuth = azimuth
-            )
          }
       }
 
-      onEnvOriValuesChanged(envOriSensorValues)
+      // Yaw, Pitch, Roll + Azimuth
+      val yaw = _orientationAngles[0]*RADIANS_TO_DEGREES
+      val pitch = _orientationAngles[1]*RADIANS_TO_DEGREES
+      val roll = _orientationAngles[2]*RADIANS_TO_DEGREES
+
+      sensorValues = sensorValues.copy(
+         yaw = yaw,
+         pitch = pitch,
+         roll = roll,
+      )
+
+      onSensorValuesChanged(sensorValues)
    }
 
 
@@ -129,13 +146,10 @@ class EnvOriSensorsManager(
 
       _pressureSensor?.let { _sensorManager.registerListener(sensorEventListener, it, delayType) }
       _lightSensor?.let { _sensorManager.registerListener(sensorEventListener, it, delayType) }
-      _temperatureSensor?.let { _sensorManager.registerListener(sensorEventListener, it, delayType) }
-      _humiditySensor?.let { _sensorManager.registerListener(sensorEventListener, it, delayType) }
 
-      _magnetometerSensor?.let { _sensorManager.registerListener(sensorEventListener, it, delayType) }
-      _gravitySensor?.let { _sensorManager.registerListener(sensorEventListener, it, delayType) }
       _accSensor?.let { _sensorManager.registerListener(sensorEventListener, it, delayType) }
-      _rotVecSensor?.let { _sensorManager.registerListener(sensorEventListener, it, delayType) }
+      _magnetometerSensor?.let { _sensorManager.registerListener(sensorEventListener, it, delayType) }
+//    _rotVecSensor?.let { _sensorManager.registerListener(sensorEventListener, it, delayType) }
    }
 
    // Stop listening to sensors
@@ -145,6 +159,7 @@ class EnvOriSensorsManager(
 
 
    companion object {
-      const val TAG = "<-OrientationManager"
+      private const val TAG = "<-AppSensorsManager"
+      private const val RADIANS_TO_DEGREES = 57.29578f
    }
 }

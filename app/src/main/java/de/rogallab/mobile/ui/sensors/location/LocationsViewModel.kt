@@ -17,11 +17,10 @@ import kotlinx.coroutines.launch
 
 class LocationsViewModel(
    application: Application
-) : BaseViewModel(application, TAG), LifecycleEventObserver {
+) : BaseViewModel(TAG), LifecycleEventObserver {
 
    private val _context: Context = application.applicationContext
    val locationManager: LocationsManager = LocationsManager(_context)
-
 
    // Expose location updates to the UI
    private val _locationUiStateFlow: MutableStateFlow<LocationUiState> =

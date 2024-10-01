@@ -28,4 +28,4 @@ fun logVerbose(tag: String, message: String) {
 }
 
 private fun formatMessage(message: String) =
-   String.format("%-70s %s", message, Thread.currentThread().toString())
+   String.format("%-100s %s", message, Thread.currentThread().toString())

@@ -1,27 +1,41 @@
 package de.rogallab.mobile.ui.base
 
-import android.app.Application
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import de.rogallab.mobile.domain.utilities.logDebug
 import de.rogallab.mobile.domain.utilities.logVerbose
 import de.rogallab.mobile.ui.errors.ErrorParams
 import de.rogallab.mobile.ui.errors.ErrorUiState
+import de.rogallab.mobile.ui.navigation.INavigationHandler
 import de.rogallab.mobile.ui.navigation.NavEvent
 import de.rogallab.mobile.ui.navigation.NavUiState
-import kotlinx.coroutines.delay
+import de.rogallab.mobile.ui.navigation.NavigationHandler
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
 import kotlin.coroutines.cancellation.CancellationException
 
 open class BaseViewModel(
-   application: Application,
    private val _tag: String
-) : AndroidViewModel(application) {
+) : ViewModel(),
+   INavigationHandler {
+
+   val navigationHandler: NavigationHandler = NavigationHandler(viewModelScope)
+
+   // Navigation State = ViewModel (one time) UI event
+   override val navUiStateFlow: StateFlow<NavUiState>
+      get() = navigationHandler.navUiStateFlow
+
+   override fun navigateTo(event: NavEvent) {
+      logVerbose(_tag, "navigateTo() event:${event.toString()}")
+      navigationHandler.navigateTo(event)
+   }
+
+   override fun onNavEventHandled() {
+      logVerbose(_tag, "onNavEventHandled()")
+      navigationHandler.onNavEventHandled()
+   }
 
    // Error  State = ViewModel (one time) events
    private val _errorUiStateFlow: MutableStateFlow<ErrorUiState> = MutableStateFlow(ErrorUiState())
@@ -72,34 +86,4 @@ open class BaseViewModel(
             onErrorEvent(ErrorParams(throwable = throwable, navEvent = navEvent))
       }
    }
-
-
-   // Navigation State = ViewModel (one time) UI event
-   private val _navUiStateFlow: MutableStateFlow<NavUiState> = MutableStateFlow(NavUiState())
-   val navUiStateFlow: StateFlow<NavUiState> = _navUiStateFlow.asStateFlow()
-
-   // prevent multiple navigation events
-   private var navEvent: NavEvent? = null
-
-   fun navigateTo(event: NavEvent) {
-      logVerbose(_tag, "navigateTo() event:${event.toString()}")
-      if (event == navEvent) return
-      navEvent = event
-      _navUiStateFlow.update { it: NavUiState ->
-         it.copy(event = event)
-      }
-   }
-   fun onNavEventHandled() {
-      logVerbose(_tag, "onNavEventHandled() event: null")
-      viewModelScope.launch {
-         delay(100) // Delay to ensure navigation has been processed
-         _navUiStateFlow.update { it: NavUiState ->
-            it.copy(event = null)
-         }
-         navEvent = null
-      }
-   }
-
-
-
 }

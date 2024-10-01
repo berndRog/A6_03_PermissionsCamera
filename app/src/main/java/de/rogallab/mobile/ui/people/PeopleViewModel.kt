@@ -29,7 +29,7 @@ import kotlinx.coroutines.launch
 
 class PeopleViewModel(
    application: Application
-) : BaseViewModel(application, TAG) {
+) : BaseViewModel(TAG) {
 
    // we must fix this by using a dependency injection framework
    private val _context: Context = application.applicationContext

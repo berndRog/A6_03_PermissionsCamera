@@ -28,11 +28,12 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import de.rogallab.mobile.R
-import de.rogallab.mobile.ui.navigation.AppBottomBar
+import de.rogallab.mobile.ui.navigation.composables.AppBottomBar
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
+   viewModel: HomeViewModel? = null,
    navController: NavController? = null
 ) {
 
@@ -59,9 +60,7 @@ fun HomeScreen(
             title = { Text(text = "Start") },
             navigationIcon = {
                IconButton(
-                  onClick = {
-                     activity.finish()
-                  }
+                  onClick = {  activity.finish()}
                ) {
                   Icon(imageVector = Icons.Default.Menu,
                      contentDescription = stringResource(R.string.back))
@@ -70,11 +69,11 @@ fun HomeScreen(
          )
       },
       bottomBar = {
-         if(navController != null)
-            AppBottomBar(navController = navController)
+         if (navController != null && viewModel != null)
+            AppBottomBar(navController, viewModel)
       },
       snackbarHost = {
-         SnackbarHost(hostState = snackbarHostState) { data ->
+         SnackbarHost(snackbarHostState) { data ->
             Snackbar(
                snackbarData = data,
                actionOnNewLine = true

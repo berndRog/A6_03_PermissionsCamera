@@ -15,7 +15,7 @@
     android:required="false" />
   <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
   <!-- only need for background location tracking -->
-  <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
+<!--  <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />-->
 
 
   <application
@@ -29,10 +29,6 @@
     android:supportsRtl="true"
     tools:targetApi="34">
 
-    <meta-data
-      android:name="com.google.android.geo.API_KEY"
-      android:value="${GOOGLE_MAPS_API_KEY}" />
-
     <activity
       android:name=".ui.MainActivity"
       android:exported="true"
@@ -44,6 +40,11 @@
         <category android:name="android.intent.category.LAUNCHER" />
       </intent-filter>
     </activity>
+
+    <meta-data
+      android:name="com.google.android.geo.API_KEY"
+      android:value="${GOOGLE_MAPS_API_KEY}" />
+
   </application>
 
 

@@ -35,11 +35,9 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import de.rogallab.mobile.R
 import de.rogallab.mobile.domain.utilities.formatf52
-import de.rogallab.mobile.domain.utilities.toDateString
 import de.rogallab.mobile.domain.utilities.toDateTimeString
 import de.rogallab.mobile.domain.utilities.toLocalDateTime
-import de.rogallab.mobile.domain.utilities.toTimeString
-import de.rogallab.mobile.ui.navigation.AppBottomBar
+import de.rogallab.mobile.ui.navigation.composables.AppBottomBar
 import de.rogallab.mobile.ui.navigation.NavEvent
 import de.rogallab.mobile.ui.sensors.location.LocationUiState
 import de.rogallab.mobile.ui.sensors.location.LocationsViewModel
@@ -74,7 +72,7 @@ fun LocationsListScreen(
             title = { Text(text = stringResource(R.string.locations_list)) },
             navigationIcon = {
                IconButton(
-                  onClick = { viewModel.navigateTo(NavEvent.Home) }
+                  onClick = { viewModel.navigateTo(NavEvent.NavigateHome) }
                ) {
                   Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                      contentDescription = stringResource(R.string.back))
@@ -83,7 +81,7 @@ fun LocationsListScreen(
          )
       },
       bottomBar = {
-         AppBottomBar(navController = navController)
+         AppBottomBar(navController, viewModel)
       },
       snackbarHost = {
          SnackbarHost(hostState = snackbarHostState) { data ->
@@ -96,28 +94,14 @@ fun LocationsListScreen(
          .padding(paddingValues = paddingValues)
          .padding(horizontal = 16.dp)
       ) {
-
-//        locationUiState.last?.let { it: LocationValue ->
-//           val dt = toLocalDateTime(it.timestamp).toTimeString()
-//           val latitude = formatf52(Math.toDegrees(it.latitude))
-//           val longitude = formatf52(Math.toDegrees(it.longitude))
-//           val altitude = formatf52(it.altitude)
-//           Text(
-//               text = "Last Location t:$dt, L:$latitude, B:$longitude, H:$altitude",
-//               style = MaterialTheme.typography.bodyLarge
-//            )
-//         }
-
          val locationValue = locationUiState.last
 
-         val ld = toLocalDateTime(locationValue.epochMillis).toDateString()
-         val lt = toLocalDateTime(locationValue.epochMillis).toTimeString()
          val ldt = toLocalDateTime(locationValue.epochMillis).toDateTimeString()
          val latitude = formatf52(locationValue.latitude)
          val longitude = formatf52(locationValue.longitude)
          val altitude = formatf52(locationValue.altitude)
          Text(
-            text = "$ld, $lt, $ldt",
+            text = "$ldt",
             style = MaterialTheme.typography.bodyMedium
          )
          Text(

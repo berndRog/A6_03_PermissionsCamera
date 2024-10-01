@@ -1,15 +1,25 @@
 package de.rogallab.mobile.ui.sensors.location.composables
+import RememberMapViewWithLifecycle
 import android.content.Context
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.Slider
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Switch
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.unit.dp
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.GoogleMap
@@ -25,7 +35,9 @@ fun GoogleMapScreen(
    context: Context,
    locationManager: LocationsManager
 ) {
-   val mapView = rememberMapViewWithLifecycle()
+   val tag = "<-GoogleMapScreen"
+
+   val mapView = RememberMapViewWithLifecycle()
 
    var currentLocation by remember { mutableStateOf(LatLng(0.0, 0.0)) }
    var zoom by remember { mutableStateOf(15f) }
@@ -61,16 +73,23 @@ fun GoogleMapScreen(
    }
 
    Column(modifier = Modifier.fillMaxSize()) {
-      Slider(
-         value = sliderValue,
-         onValueChange = { sliderValue = it },
-         valueRange = 1f..20f
+
+      var checked by remember { mutableStateOf(true) }
+      
+      SwitchWithLabel(
+         label ="Show Marker",
+         checked = checked,
+         onCheckedChange = {
+            checked = it
+         }
       )
+
+      logInfo(tag, "markerState: ${markerState.position.latitude}, ${markerState.position.longitude}")
       GoogleMap(
+         modifier = Modifier.fillMaxSize(),
          cameraPositionState = cameraPositionState,
       ) {
-         if(sliderValue > 0.5f) {
-
+         if(checked) {
             Marker(
                state = markerState,
                title = "Your Location"
@@ -78,6 +97,44 @@ fun GoogleMapScreen(
          }
       }
 
+   }
+}
+
+@Composable
+fun SwitchWithLabel(
+   label: String,
+   checked: Boolean,
+   onCheckedChange: (Boolean) -> Unit
+) {
+
+   val interactionSource = remember { MutableInteractionSource() }
+
+   Row(
+      modifier = Modifier
+         .clickable(
+            interactionSource = interactionSource,
+            // This is for removing ripple when Row is clicked
+            indication = null,
+            role = Role.Switch,
+            onClick = {
+               onCheckedChange(!checked)
+            }
+         )
+         .padding(8.dp),
+      verticalAlignment = Alignment.CenterVertically
+
+   ) {
+
+      Text(
+         modifier = Modifier.weight(0.9f),
+         text = label)
+      Switch(
+         modifier = Modifier.weight(0.1f),
+         checked = checked,
+         onCheckedChange = {
+            onCheckedChange(it)
+         }
+      )
    }
 }
 

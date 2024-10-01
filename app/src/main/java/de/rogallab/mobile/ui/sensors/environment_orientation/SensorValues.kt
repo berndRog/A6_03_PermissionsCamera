@@ -8,10 +8,6 @@ data class SensorValues(
    val pressure: Float = 0.0f,
    // light in lumen
    val light: Float = 0.0f,
-   // temperature in
-   val temperature: Float = 0.0f,
-   // relative humidity in percent
-   val humidity: Float = 0.0f,
 
    // Orientation ----------------------------------------------------
    // yaw is the rotation around the vertical axis

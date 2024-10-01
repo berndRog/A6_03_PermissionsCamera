@@ -1,4 +1,4 @@
-package de.rogallab.mobile.ui.navigation
+package de.rogallab.mobile.ui.navigation.composables
 
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
@@ -10,14 +10,17 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.navigation.NavController
-import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.currentBackStackEntryAsState
 import de.rogallab.mobile.domain.utilities.logDebug
+import de.rogallab.mobile.ui.navigation.INavigationHandler
+import de.rogallab.mobile.ui.navigation.NavEvent
+import de.rogallab.mobile.ui.navigation.NavScreen
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppBottomBar(
-   navController: NavController
+   navController: NavController,
+   navigationHandler: INavigationHandler
 ) {
    val topLevelScreens = listOf(
       NavScreen.Home,
@@ -26,10 +29,7 @@ fun AppBottomBar(
       NavScreen.SensorsList
    )
 
-   NavigationBar(
-   //   containerColor = MaterialTheme.colorScheme.primary,
-   //   contentColor = MaterialTheme.colorScheme.onPrimary
-   ) {
+   NavigationBar() {
       val tag = "<-AppBottomBar"
 
       val navBackStackEntry by navController.currentBackStackEntryAsState()
@@ -50,7 +50,7 @@ fun AppBottomBar(
                   Icon(
                      imageVector =
                         if(currentRoute == topLevelScreen.route) topLevelScreen.selectedIcon
-                        else                           topLevelScreen.unSelectedIcon,
+                        else                                     topLevelScreen.unSelectedIcon,
                      contentDescription = topLevelScreen.title
                   )
                }
@@ -60,19 +60,7 @@ fun AppBottomBar(
             selected = currentRoute == topLevelScreen.route,
             onClick = {
                logDebug(tag,"navigateTo ${topLevelScreen.route}")
-               navController.navigate(topLevelScreen.route) {
-                  // Pop up to the start destination of the graph to
-                  // avoid building up a large stack of destinations
-                  // on the back stack as users select items
-                  popUpTo(navController.graph.findStartDestination().id) {
-                     saveState = true
-                  }
-                  // Avoid multiple copies of the same destination when
-                  // reselecting the same item
-                  launchSingleTop = true
-                  // Restore state when reselecting a previously selected item
-                  restoreState = true
-               }
+               navigationHandler.navigateTo(NavEvent.NavigateLateral(topLevelScreen.route))
             }
          )
       }

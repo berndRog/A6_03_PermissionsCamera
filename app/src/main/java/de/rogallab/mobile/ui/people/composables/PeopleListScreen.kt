@@ -54,7 +54,7 @@ import de.rogallab.mobile.ui.composables.SetSwipeBackgroud
 import de.rogallab.mobile.ui.errors.ErrorParams
 import de.rogallab.mobile.ui.errors.ErrorUiState
 import de.rogallab.mobile.ui.errors.showError
-import de.rogallab.mobile.ui.navigation.AppBottomBar
+import de.rogallab.mobile.ui.navigation.composables.AppBottomBar
 import de.rogallab.mobile.ui.navigation.NavEvent
 import de.rogallab.mobile.ui.navigation.NavScreen
 import de.rogallab.mobile.ui.people.PeopleViewModel
@@ -99,7 +99,7 @@ fun PeopleSwipeListScreen(
             title = { Text(text = stringResource(R.string.people_list)) },
             navigationIcon = {
                IconButton(
-                  onClick = { viewModel.navigateTo(NavEvent.Home) }
+                  onClick = { viewModel.navigateTo(NavEvent.NavigateHome) }
                ) {
                   Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                      contentDescription = stringResource(R.string.back))
@@ -121,7 +121,7 @@ fun PeopleSwipeListScreen(
          }
       },
       bottomBar = {
-         AppBottomBar(navController = navController)
+         AppBottomBar(navController, viewModel)
       },
       snackbarHost = {
          SnackbarHost(hostState = snackbarHostState) { data ->

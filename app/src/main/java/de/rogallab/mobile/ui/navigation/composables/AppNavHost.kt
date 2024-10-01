@@ -1,4 +1,4 @@
-package de.rogallab.mobile.ui.navigation
+package de.rogallab.mobile.ui.navigation.composables
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -11,6 +11,7 @@ import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavBackStackEntry
+import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -19,29 +20,36 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import de.rogallab.mobile.domain.utilities.logInfo
 import de.rogallab.mobile.ui.home.HomeScreen
-import de.rogallab.mobile.ui.people.composables.PeopleSwipeListScreen
+import de.rogallab.mobile.ui.home.HomeViewModel
+import de.rogallab.mobile.ui.navigation.INavigationHandler
+import de.rogallab.mobile.ui.navigation.NavEvent
+import de.rogallab.mobile.ui.navigation.NavScreen
+import de.rogallab.mobile.ui.navigation.NavigationViewModel
 import de.rogallab.mobile.ui.people.PeopleViewModel
+import de.rogallab.mobile.ui.people.composables.PeopleSwipeListScreen
 import de.rogallab.mobile.ui.people.composables.PersonScreen
-import de.rogallab.mobile.ui.sensors.location.LocationsViewModel
-import de.rogallab.mobile.ui.sensors.environment_orientation.EnvOriSensorsViewModel
-import de.rogallab.mobile.ui.sensors.location.composables.LocationsListScreen
+import de.rogallab.mobile.ui.sensors.environment_orientation.SensorsViewModel
 import de.rogallab.mobile.ui.sensors.environment_orientation.composables.SensorsListScreen
+import de.rogallab.mobile.ui.sensors.location.LocationsViewModel
+import de.rogallab.mobile.ui.sensors.location.composables.LocationsListScreen
 import de.rogallab.mobile.ui.settings.SettingsScreen
 import de.rogallab.mobile.ui.settings.SettingsViewModel
+import kotlinx.coroutines.flow.combine
 
 @Composable
 fun AppNavHost(
+   navController: NavHostController = rememberNavController(),
    // Injecting the ViewModel by koin()
-   peopleViewModel: PeopleViewModel = viewModel(),
+   homeViewModel: HomeViewModel = viewModel(),
+   peopleViewModel: PeopleViewModel, //,
    locationsViewModel: LocationsViewModel, // = viewModel(),
-   envOriSensorsViewModel: EnvOriSensorsViewModel, // = viewModel()
-   settingsViewModel: SettingsViewModel = viewModel(),
-   drawerState: DrawerState
+   sensorsViewModel: SensorsViewModel, // = viewModel()
+   settingsViewModel: SettingsViewModel, // = viewModel(),
+   navigationViewModel: NavigationViewModel, // = viewModel(),
 ) {
    val tag = "<AppNavHost>"
    val duration = 1000  // in milliseconds
    // create a NavHostController with a factory function
-   val navController: NavHostController = rememberNavController()
 
    NavHost(
       navController = navController,
@@ -54,6 +62,7 @@ fun AppNavHost(
 
       composable( route = NavScreen.Home.route ) {
          HomeScreen(
+            viewModel = homeViewModel,
             navController = navController
          )
       }
@@ -92,7 +101,7 @@ fun AppNavHost(
 
       composable( route = NavScreen.SensorsList.route ) {
          SensorsListScreen(
-            viewModel = envOriSensorsViewModel,
+            viewModel = sensorsViewModel,
             navController = navController
          )
       }
@@ -106,12 +115,40 @@ fun AppNavHost(
    }
 
    // Observing the navigation state and handle navigation
-   val navUiState: NavUiState by peopleViewModel.navUiStateFlow.collectAsStateWithLifecycle()
-   navUiState.event?.let { navEvent: NavEvent ->
-      logInfo(tag, "navEvent: $navEvent")
-      when(navEvent) {
+//   val navUiState1: NavUiState by peopleViewModel.navUiStateFlow.collectAsStateWithLifecycle()
+//   val navUiState2: NavUiState by locationsViewModel.navUiStateFlow.collectAsStateWithLifecycle()
+//   val navUiState3: NavUiState by peopleViewModel.navUiStateFlow.collectAsStateWithLifecycle()
 
-         is NavEvent.Home -> {
+   // Combine navUiStateFlow from multiple ViewModels
+   val combinedNavEvent: NavEvent? by combine(
+      homeViewModel.navUiStateFlow,
+      peopleViewModel.navUiStateFlow,
+      locationsViewModel.navUiStateFlow,
+      sensorsViewModel.navUiStateFlow,
+      navigationViewModel.navUiStateFlow
+   ) { homeNavUiState, peopleNavUiState, locationsNavUiState, sensorsNavUiState, navigationNavUiState ->
+      // Combine the states as needed, here we just return the first non-null event
+      homeNavUiState.event ?:
+      peopleNavUiState.event ?:
+      locationsNavUiState.event ?:
+      sensorsNavUiState.event ?:
+      navigationNavUiState.event
+   }.collectAsStateWithLifecycle(initialValue = null)
+
+   combinedNavEvent?.let { navEvent: NavEvent ->
+      logInfo(tag, "navEvent: $navEvent")
+      // check which ViewModel has the navEvent
+      val navigationHandler: INavigationHandler = when {
+         homeViewModel.navUiStateFlow.value.event == navEvent -> homeViewModel
+         peopleViewModel.navUiStateFlow.value.event == navEvent -> peopleViewModel
+         locationsViewModel.navUiStateFlow.value.event == navEvent -> locationsViewModel
+         sensorsViewModel.navUiStateFlow.value.event == navEvent -> sensorsViewModel
+         navigationViewModel.navUiStateFlow.value.event == navEvent -> navigationViewModel
+         else -> return@let
+      }
+
+      when(navEvent) {
+         is NavEvent.NavigateHome -> {
             navController.navigate(NavScreen.Home.route) {
                popUpTo(navController.graph.startDestinationRoute ?: NavScreen.Home.route) {
                   saveState = true
@@ -119,7 +156,18 @@ fun AppNavHost(
                launchSingleTop = true
                restoreState = true
             }
-            peopleViewModel.onNavEventHandled()
+            navigationHandler.onNavEventHandled()
+         }
+
+         is NavEvent.NavigateLateral -> {
+            navController.navigate(navEvent.route) {
+               popUpTo(navController.graph.findStartDestination().id) {
+                  saveState = true
+               }
+               launchSingleTop = true
+               restoreState = true
+            }
+            navigationHandler.onNavEventHandled()
          }
 
          is NavEvent.NavigateForward -> {
@@ -128,7 +176,7 @@ fun AppNavHost(
             navController.navigate(navEvent.route)
 
             // onNavEventHandled() resets the navEvent to null
-            peopleViewModel.onNavEventHandled()
+            navigationHandler.onNavEventHandled()
          }
 
          is NavEvent.NavigateReverse -> {
@@ -137,16 +185,12 @@ fun AppNavHost(
                   inclusive = true        // ensures that any previous instances of
                }                          // that route are removed
             }
-
-            // onNavEventHandled() resets the navEvent to null
-            peopleViewModel.onNavEventHandled()
+            navigationHandler.onNavEventHandled()
          }
 
          is NavEvent.NavigateBack -> {
             navController.popBackStack()
-
-            // onNavEventHandled() resets the navEvent to null
-            peopleViewModel.onNavEventHandled()
+            navigationHandler.onNavEventHandled()
          }
 
          is NavEvent.BottomNav -> {
@@ -162,8 +206,7 @@ fun AppNavHost(
                // Restore state when reselecting a previously selected item
                restoreState = true
             }
-
-            peopleViewModel.onNavEventHandled()
+            navigationHandler.onNavEventHandled()
          }
 
       }

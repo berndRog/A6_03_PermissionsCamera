@@ -39,9 +39,9 @@ fun RequestPermissions(
 
    // Get permissions from the manifest
    val permissionsFromManifest: Array<String> = getPermissionsFromManifest(context)
-   permissionsFromManifest.forEach { permission ->
-      logInfo(tag, "Permissions from manifest: $permission")
-   }
+//   permissionsFromManifest.forEach { permission ->
+//      logInfo(tag, "Permissions from manifest: $permission")
+//   }
 
    // Filter permissions that are not granted yet
    val permissionsToRequest = permissionsFromManifest.filter { permission ->
