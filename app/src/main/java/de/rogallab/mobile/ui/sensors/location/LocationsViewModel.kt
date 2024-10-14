@@ -1,26 +1,30 @@
 package de.rogallab.mobile.ui.sensors.location
 
 import android.app.Application
+import android.content.BroadcastReceiver
 import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.location.Location
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleEventObserver
-import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.lifecycleScope
-import de.rogallab.mobile.domain.utilities.logInfo
+import androidx.lifecycle.viewModelScope
+import de.rogallab.mobile.domain.location.AppLocationManager
+import de.rogallab.mobile.domain.location.AppLocationService
+import de.rogallab.mobile.domain.location.LocationValue
 import de.rogallab.mobile.ui.base.BaseViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 
 class LocationsViewModel(
-   application: Application
-) : BaseViewModel(TAG), LifecycleEventObserver {
+   application: Application,
+) : BaseViewModel(TAG), KoinComponent {
 
    private val _context: Context = application.applicationContext
-   val locationManager: LocationsManager = LocationsManager(_context)
+   private val _locationManager: AppLocationManager by inject()
 
    // Expose location updates to the UI
    private val _locationUiStateFlow: MutableStateFlow<LocationUiState> =
@@ -28,57 +32,79 @@ class LocationsViewModel(
    val locationUiStateFlow: StateFlow<LocationUiState> =
       _locationUiStateFlow.asStateFlow()
 
-   // Observe lifecycle events
-   override fun onStateChanged(
-      source: LifecycleOwner,
-      event: Lifecycle.Event
-   ) {
-      logInfo(TAG, "onStateChanged: $event")
-      when (event) {
-         Lifecycle.Event.ON_START -> {
-            // Start location updates when the lifecycle enters the started state
-            locationManager.startLocationUpdates()
+   // define a broadcast receiver to receive location updates (from tracking service)
+   private val locationReceiver = object : BroadcastReceiver() {
+      override fun onReceive(context: Context?, intent: Intent?) {
+         val time = intent?.getLongExtra("time", 0L) ?: 0L
+         val latitude = intent?.getDoubleExtra("latitude", 0.0) ?: 0.0
+         val longitude = intent?.getDoubleExtra("longitude", 0.0) ?: 0.0
+         val location = Location("dummyprovider").apply {
+            this.time = time
+            this.latitude = latitude
+            this.longitude = longitude
          }
-         Lifecycle.Event.ON_STOP -> {
-            // Stop location updates when the lifecycle stops
-            locationManager.stopLocationUpdates()
-         }
-         Lifecycle.Event.ON_RESUME -> {
-            // Fetch last known location, i.e update the locationflow
-            locationManager.getLastLocation()
-            // consume the locationFlow
-            source.lifecycleScope.launch {
-               locationManager.locationFlow.collect { location: Location? ->
-                  location?.let { loc ->
-                     logInfo(TAG, "location: ${loc.latitude}, ${loc.longitude}")
-                     _locationUiStateFlow.update {  it: LocationUiState ->
-                        // new location value object
-                        val locationValue = LocationValue(
-                           epochMillis = location.time,
-                           latitude = location.latitude,
-                           longitude = location.longitude,
-                           altitude = location.altitude,
-                           speed = location.speed,
-                        )
-                        // add the new locationValue to the ringBuffer
-                        it.ringBuffer.add(locationValue)
-                        // update the last locationValue
-                        it.copy(
-                           last = locationValue,
-                           ringBuffer = it.ringBuffer
-                        )
-                     }
-                  }
-               }
-            }
-         }
-         else -> { }
+         // get location updates (tracking data)
+         // via broadcast from the location manager
+         processLocation(location)
       }
    }
 
-   override fun onCleared() {
-      super.onCleared()
-      locationManager.stopLocationUpdates()
+   private fun processLocation(location: Location) {
+      _locationUiStateFlow.update { it: LocationUiState ->
+         // new location value object
+         val locationValue = LocationValue(
+            time = location.time,
+            latitude = location.latitude,
+            longitude = location.longitude,
+         )
+         // add the new locationValue to the ringBuffer
+         it.ringBuffer.add(locationValue)
+         // update the last locationValue
+         it.copy(
+            last = locationValue,
+            ringBuffer = it.ringBuffer
+         )
+      }
+   }
+
+   init {
+      val filter = IntentFilter("LOCATION_UPDATE")
+      application.registerReceiver(locationReceiver, filter, Context.RECEIVER_NOT_EXPORTED)
+   }
+
+
+   fun processIntent(intent: LocationIntent) {
+      when (intent) {
+         is LocationIntent.GetLocation -> getLocation()
+         is LocationIntent.StartLocationService -> startLocationService()
+         is LocationIntent.StopLocationService -> stopLocationService()
+      }
+   }
+
+   // get the initial location at start
+   private fun getLocation(){
+      // get last known location and update the locationflow
+      _locationManager.getLocation { location ->
+         processLocation(location)
+      }
+   }
+
+   private fun startLocationService() {
+      viewModelScope.launch {
+         Intent(_context, AppLocationService::class.java).apply {
+            action = AppLocationService.Action.START.name
+            _context.startService(this)
+         }
+      }
+   }
+
+   private fun stopLocationService() {
+      viewModelScope.launch {
+         Intent(_context, AppLocationService::class.java).apply {
+            action = AppLocationService.Action.STOP.name
+            _context.stopService(this)
+         }
+      }
    }
 
    companion object {

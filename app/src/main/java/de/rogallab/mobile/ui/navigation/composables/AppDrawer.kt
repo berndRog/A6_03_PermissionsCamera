@@ -20,9 +20,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.compose.composable
 import de.rogallab.mobile.ui.navigation.NavEvent
 import de.rogallab.mobile.ui.navigation.NavScreen
 import de.rogallab.mobile.ui.navigation.NavigationViewModel
+import de.rogallab.mobile.ui.sensors.location.composables.LocationsListScreen
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -33,15 +35,20 @@ fun AppDrawer(
    scope: CoroutineScope
 ) {
 
-   ModalDrawerSheet {
+   ModalDrawerSheet(
+      drawerState = drawerState,
+      drawerShape = MaterialTheme.shapes.extraSmall,
+   // drawerContainerColor = MaterialTheme.colorScheme.secondaryContainer,
+   ) {
       Text(
-         text = "Permissions & Sensors & Camera",
+         text = "Permissions: Camera, Video, Location, Sensors",
          style = MaterialTheme.typography.headlineMedium,
          modifier = Modifier.padding(16.dp)
       )
 
       HorizontalDivider()
 
+      // H O M E ---------------------------------------------------------------
       DrawerItem(
          icon = NavScreen.Home.unSelectedIcon,
          label = NavScreen.Home.title,
@@ -52,8 +59,7 @@ fun AppDrawer(
             navigationViewModel.onNavEventHandled()
          }
       )
-
-      // people
+      // P E O P L E ---------------------------------------------------------
       DrawerItem(
          icon = NavScreen.PeopleList.unSelectedIcon,
          label = NavScreen.PeopleList.title,
@@ -65,7 +71,7 @@ fun AppDrawer(
             navigationViewModel.onNavEventHandled()
          }
       )
-
+      // C A M E R A (Photo&Video) -------------------------------------------
       // location
       DrawerItem(
          icon = NavScreen.LocationsList.unSelectedIcon,
@@ -78,8 +84,7 @@ fun AppDrawer(
             navigationViewModel.onNavEventHandled()
          }
       )
-
-      // sensors
+      // S E N S O R S ---------------------------------------------------------
       DrawerItem(
          icon = NavScreen.SensorsList.unSelectedIcon,
          label = NavScreen.SensorsList.title,

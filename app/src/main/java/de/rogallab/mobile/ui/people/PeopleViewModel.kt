@@ -6,7 +6,6 @@ import android.content.res.Resources
 import android.util.Patterns
 import androidx.lifecycle.viewModelScope
 import de.rogallab.mobile.data.PeopleRepository
-import de.rogallab.mobile.data.Seed
 import de.rogallab.mobile.data.local.DataStore
 import de.rogallab.mobile.data.local.IDataStore
 import de.rogallab.mobile.domain.IPeopleRepository
@@ -18,8 +17,6 @@ import de.rogallab.mobile.ui.ResourceProvider
 import de.rogallab.mobile.ui.base.BaseViewModel
 import de.rogallab.mobile.ui.errors.ErrorParams
 import de.rogallab.mobile.ui.errors.ErrorResources
-import de.rogallab.mobile.ui.navigation.NavEvent
-import de.rogallab.mobile.ui.navigation.NavScreen
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -28,18 +25,9 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class PeopleViewModel(
-   application: Application
+   private val _repository: IPeopleRepository,
+   private val _errorResources:ErrorResources
 ) : BaseViewModel(TAG) {
-
-   // we must fix this by using a dependency injection framework
-   private val _context: Context = application.applicationContext
-   private val _resources: Resources = application.resources
-   private val _dataStore: IDataStore = DataStore(_context, _resources)
-   private val _repository: IPeopleRepository = PeopleRepository(_dataStore)
-
-   // get error resources from the context
-   private val _resourceProvider = ResourceProvider(_context)
-   private val _errorResources = ErrorResources(_resourceProvider)
 
    private var removedPerson: Person? = null
 

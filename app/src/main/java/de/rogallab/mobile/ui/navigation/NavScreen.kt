@@ -7,6 +7,7 @@ import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.MyLocation
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.PersonAdd
+import androidx.compose.material.icons.filled.PhotoCamera
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.outlined.Group
 import androidx.compose.material.icons.outlined.Home
@@ -14,6 +15,7 @@ import androidx.compose.material.icons.outlined.LocationOn
 import androidx.compose.material.icons.outlined.MyLocation
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.PersonAdd
+import androidx.compose.material.icons.outlined.PhotoCamera
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.ui.graphics.vector.ImageVector
 
@@ -50,6 +52,13 @@ sealed class NavScreen(
       title = "Person ändern",
       selectedIcon = Icons.Outlined.Person,
       unSelectedIcon = Icons.Filled.Person
+   )
+
+   data object Camera: NavScreen(
+      route = "Camera&VideoScreen",
+      title = "Camera & Video",
+      selectedIcon = Icons.Outlined.PhotoCamera,
+      unSelectedIcon = Icons.Filled.PhotoCamera
    )
 
    data object LocationsList: NavScreen(

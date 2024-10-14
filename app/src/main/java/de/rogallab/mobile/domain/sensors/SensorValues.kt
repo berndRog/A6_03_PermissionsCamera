@@ -1,7 +1,8 @@
-package de.rogallab.mobile.ui.sensors.environment_orientation
+package de.rogallab.mobile.domain.sensors
 
 data class SensorValues(
-   val epochMillis: Long = System.currentTimeMillis(), // epoch
+
+   val time: Long = System.currentTimeMillis(), // epoch
 
    // Environment ----------------------------------------------------
    // pressure in milli Pascal
@@ -10,12 +11,17 @@ data class SensorValues(
    val light: Float = 0.0f,
 
    // Orientation ----------------------------------------------------
-   // yaw is the rotation around the vertical axis
+   // yaw is the rotation around the device vertical axis
    val yaw: Float = 0.0f,
    // pitch is the rotation around the wings (transverse axis)
    val pitch: Float = 0.0f,
    // roll is the rotation around the fuselage (longitudinal axis)
    val roll: Float = 0.0f,
-   // azimuth is the angle between the magnetic north direction and the direction of the object
-   val azimuth: Float = 0.0f
+   // acceleration in local x-direction
+   val accLx: Float = 0.0f,
+   // acceleration in local y-direction
+   val accLy: Float = 0.0f,
+   // acceleration in local z-direction
+   val accLz: Float = 0.0f
+
 )

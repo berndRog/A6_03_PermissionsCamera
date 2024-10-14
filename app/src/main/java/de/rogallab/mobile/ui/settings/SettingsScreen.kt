@@ -14,35 +14,45 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 
 @Composable
 fun SettingsScreen(
-   settingsViewModel: SettingsViewModel = viewModel()
+   settingsViewModel: SettingsViewModel
 ) {
-   val sensorSettings by settingsViewModel.sensorSettings.collectAsState()
+
+   val settingsUiState by
+      settingsViewModel.settingsUiStateFlow.collectAsState()
 
    Column(modifier = Modifier.padding(16.dp)) {
       Text("Sensor Settings", style = MaterialTheme.typography.displayMedium)
 
       SwitchSetting(
-         label = "Pressure Sensor",
-         isChecked = sensorSettings.isPressureSensorEnabled,
-         onCheckedChange = { settingsViewModel.updateSettings(sensorSettings.copy(isPressureSensorEnabled = it)) }
+         label = "Drucksensor",
+         isChecked = settingsUiState.isPressureSensorEnabled,
+         onCheckedChange = {
+            settingsViewModel.updateSettings(
+               settingsUiState.copy(isPressureSensorEnabled = it)
+            )
+         }
       )
 
       SwitchSetting(
-         label = "Light Sensor",
-         isChecked = sensorSettings.isLightSensorEnabled,
-         onCheckedChange = { settingsViewModel.updateSettings(sensorSettings.copy(isLightSensorEnabled = it)) }
+         label = "Helligkeitssensor",
+         isChecked = settingsUiState.isLightSensorEnabled,
+         onCheckedChange = {
+            settingsViewModel.updateSettings(
+               settingsUiState.copy(isLightSensorEnabled = it)
+            )
+         }
       )
 
       SwitchSetting(
-         label = "Temperature Sensor",
-         isChecked = sensorSettings.isTemperatureSensorEnabled,
-         onCheckedChange = { settingsViewModel.updateSettings(sensorSettings.copy(isTemperatureSensorEnabled = it)) }
-      )
-
-      SwitchSetting(
-         label = "Humidity Sensor",
-         isChecked = sensorSettings.isHumiditySensorEnabled,
-         onCheckedChange = { settingsViewModel.updateSettings(sensorSettings.copy(isHumiditySensorEnabled = it)) }
+         label = "Orientierungssensor",
+         isChecked = settingsUiState.isOrientationSensorEnabled,
+         onCheckedChange = {
+            settingsViewModel.updateSettings(
+               settingsUiState.copy(
+                  isOrientationSensorEnabled = it
+               )
+            )
+         }
       )
    }
 }

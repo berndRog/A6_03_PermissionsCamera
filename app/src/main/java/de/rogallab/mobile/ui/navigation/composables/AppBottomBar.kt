@@ -25,6 +25,7 @@ fun AppBottomBar(
    val topLevelScreens = listOf(
       NavScreen.Home,
       NavScreen.PeopleList,
+      NavScreen.Camera,
       NavScreen.LocationsList,
       NavScreen.SensorsList
    )

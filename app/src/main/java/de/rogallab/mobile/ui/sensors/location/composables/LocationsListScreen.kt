@@ -1,12 +1,17 @@
 package de.rogallab.mobile.ui.sensors.location.composables
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.add
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
@@ -14,6 +19,7 @@ import androidx.compose.foundation.layout.safeGestures
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -25,8 +31,10 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -34,11 +42,13 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import de.rogallab.mobile.R
-import de.rogallab.mobile.domain.utilities.formatf52
-import de.rogallab.mobile.domain.utilities.toDateTimeString
-import de.rogallab.mobile.domain.utilities.toLocalDateTime
-import de.rogallab.mobile.ui.navigation.composables.AppBottomBar
+import de.rogallab.mobile.domain.utilities.formatEpochLatLng
+import de.rogallab.mobile.domain.utilities.logDebug
+import de.rogallab.mobile.domain.utilities.logInfo
 import de.rogallab.mobile.ui.navigation.NavEvent
+import de.rogallab.mobile.ui.navigation.NavScreen
+import de.rogallab.mobile.ui.navigation.composables.AppBottomBar
+import de.rogallab.mobile.ui.sensors.location.LocationIntent
 import de.rogallab.mobile.ui.sensors.location.LocationUiState
 import de.rogallab.mobile.ui.sensors.location.LocationsViewModel
 
@@ -49,11 +59,23 @@ fun LocationsListScreen(
    navController: NavController
 ) {
 
+   val tag = "<-LocationsListScreen"
    val context = LocalContext.current
 
-   // Yaw, Pitch, Roll +
+   // collect the locationUiState from the viewModel
    val locationUiState: LocationUiState
       by viewModel.locationUiStateFlow.collectAsStateWithLifecycle()
+
+//   LaunchedEffect(Unit) {
+//      logInfo(tag, "get location")
+//      viewModel.processIntent(LocationIntent.GetLocation)
+//   }
+
+   // Handle back navigation
+   BackHandler{
+      logInfo(tag, "BackHandler -> navigate to Home")
+      viewModel.navigateTo(NavEvent.NavigateBack(NavScreen.Home.route))
+   }
 
    val snackbarHostState = remember { SnackbarHostState() }
 
@@ -94,47 +116,45 @@ fun LocationsListScreen(
          .padding(paddingValues = paddingValues)
          .padding(horizontal = 16.dp)
       ) {
+
+         Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceEvenly,
+            verticalAlignment = Alignment.CenterVertically,
+         ) {
+            Button(
+               modifier = Modifier.weight(0.4f),
+               onClick = {
+                  logDebug(tag,"Start AppLocationService")
+                  viewModel.processIntent(LocationIntent.StartLocationService)
+               }
+            ) {
+               Text(text = "Start")
+            }
+
+            Spacer(modifier = Modifier.weight(0.1f))
+
+            Button(
+               modifier = Modifier.weight(0.4f),
+               onClick = {
+                  logDebug(tag,"Stop AppLocationService")
+                  viewModel.processIntent(LocationIntent.StopLocationService)
+               }
+            ) {
+               Text(text = "Stop")
+            }
+         }
+
          val locationValue = locationUiState.last
-
-         val ldt = toLocalDateTime(locationValue.epochMillis).toDateTimeString()
-         val latitude = formatf52(locationValue.latitude)
-         val longitude = formatf52(locationValue.longitude)
-         val altitude = formatf52(locationValue.altitude)
          Text(
-            text = "$ldt",
-            style = MaterialTheme.typography.bodyMedium
-         )
-         Text(
-            text = "L/B:$latitude, $longitude, H:$altitude",
-            style = MaterialTheme.typography.bodyLarge
+            text = formatEpochLatLng(locationValue), //"L/B:$latitude/$longitude",
+            style = MaterialTheme.typography.bodySmall
          )
 
-         GoogleMapScreen(context, viewModel.locationManager)
-
-
-//         LazyColumn {
-//            items(
-//               items = locationUiState.ringBuffer.toList()
-//            ) { it: LocationValue ->
-//               val ld = toLocalDateTime(it.epochMillis).toDateString()
-//               val lt = toLocalDateTime(it.epochMillis).toTimeString()
-//               val ldt = toLocalDateTime(it.epochMillis).toDateTimeString()
-//               val latitude = formatf52(it.latitude)
-//               val longitude = formatf52(it.longitude)
-//               val altitude = formatf52(it.altitude)
-//               Text(
-//                  text = "$ld, $lt, $ldt",
-//                  style = MaterialTheme.typography.bodyMedium
-//               )
-//               Text(
-//                  text = "L/B:$latitude, $longitude, H:$altitude",
-//                  style = MaterialTheme.typography.bodyLarge
-//               )
-//
-//
-//
-//            }
-//         }
+         GoogleMapsScreen(
+            context = context,
+            viewModel = viewModel
+         )
       }
    }
 }

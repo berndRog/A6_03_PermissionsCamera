@@ -2,7 +2,6 @@ package de.rogallab.mobile.ui.permissions
 
 
 import android.content.Context
-import androidx.compose.ui.res.stringResource
 import de.rogallab.mobile.R
 
 class PermissionCamera : IPermissionText {
@@ -29,6 +28,17 @@ class PermissionRecordAudio : IPermissionText {
    }
 }
 
+class PermissionExternalStorage : IPermissionText {
+   override fun getDescription(context: Context, isPermanentlyDeclined: Boolean): String {
+      return if (isPermanentlyDeclined) {
+         context.getString(R.string.declinedExternalStorage)
+      } else {
+         context.getString(R.string.permissionExternalStorage)
+      }
+   }
+}
+
+
 class PermissionCoarseLocation : IPermissionText {
    override fun getDescription(context: Context, isPermanentlyDeclined: Boolean): String {
       return if (isPermanentlyDeclined) {
@@ -38,6 +48,17 @@ class PermissionCoarseLocation : IPermissionText {
       }
    }
 }
+
+class PermissionForeGroundLocation : IPermissionText {
+   override fun getDescription(context: Context, isPermanentlyDeclined: Boolean): String {
+      return if (isPermanentlyDeclined) {
+         context.getString(R.string.declinedFineLocation)
+      } else {
+         context.getString(R.string.permissionFineLocation)
+      }
+   }
+}
+
 
 class PermissionFineLocation : IPermissionText {
    override fun getDescription(context: Context, isPermanentlyDeclined: Boolean): String {

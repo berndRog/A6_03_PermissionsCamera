@@ -33,7 +33,7 @@ android {
 
    defaultConfig {
       applicationId = "de.rogallab.mobile"
-      minSdk = 26
+      minSdk = 32
       targetSdk = 34
       versionCode = 1
       versionName = "1.0"
@@ -64,6 +64,7 @@ android {
    }
    buildFeatures {
       compose = true
+      buildConfig = true
    }
    composeOptions {
       kotlinCompilerExtensionVersion = "1.5.14"
@@ -102,6 +103,15 @@ dependencies {
    implementation(libs.androidx.compose.material3)
    implementation(libs.material.icons.extended)
 
+   // Ui Camera
+   // https://developer.android.com/jetpack/androidx/releases/camera
+   implementation(libs.androidx.camera.camera2)
+   implementation(libs.androidx.camera.core)
+   implementation(libs.androidx.camera.lifecycle)
+   implementation(libs.androidx.camera.video)
+   implementation(libs.androidx.camera.view)
+   implementation(libs.androidx.camera.extensions)
+
    // Ui Lifecycle
    // https://developer.android.com/jetpack/androidx/releases/lifecycle
    // val archVersion = "2.2.0"
@@ -134,6 +144,8 @@ dependencies {
    implementation(platform(libs.koin.bom))
    implementation(libs.koin.android)
    implementation(libs.koin.androidx.compose)
+   implementation(libs.koin.androidx.startup)
+
    // Java Compatibility
    implementation (libs.koin.android.compat)
 
@@ -141,6 +153,7 @@ dependencies {
    implementation(libs.kotlinx.serialization.json)
    implementation(libs.androidx.ui.text.google.fonts)
    implementation(libs.play.services.location)
+   implementation(libs.androidx.lifecycle.process)
    // TESTS -----------------------
    testImplementation(libs.junit)
    testImplementation(libs.koin.test)

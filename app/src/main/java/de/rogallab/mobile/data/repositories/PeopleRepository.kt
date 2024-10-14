@@ -6,14 +6,12 @@ import de.rogallab.mobile.domain.ResultData
 import de.rogallab.mobile.domain.entities.Person
 
 class PeopleRepository(
-   val dataStore: IDataStore
+   private val _dataStore: IDataStore
 ): IPeopleRepository {
-
-
 
    override fun getAll(): ResultData<MutableList<Person>> {
       return try {
-         ResultData.Success(dataStore.selectAll())
+         ResultData.Success(_dataStore.selectAll())
       } catch (t: Throwable) {
          ResultData.Error(t)
       }
@@ -21,7 +19,7 @@ class PeopleRepository(
 
    override fun getWhere(predicate: (Person) -> Boolean): ResultData<MutableList<Person>> {
       return try {
-         ResultData.Success(dataStore.selectWhere(predicate))
+         ResultData.Success(_dataStore.selectWhere(predicate))
       } catch (t: Throwable) {
          ResultData.Error(t)
       }
@@ -30,7 +28,7 @@ class PeopleRepository(
    override fun findById(id: String): ResultData<Person?> {
       return try {
 //       throw Exception("Fehler Test Exception");
-         ResultData.Success(dataStore.findById(id))
+         ResultData.Success(_dataStore.findById(id))
       } catch (t: Throwable) {
          ResultData.Error(t)
       }
@@ -38,7 +36,7 @@ class PeopleRepository(
 
    override fun findBy(predicate: (Person) -> Boolean): ResultData<Person?> {
       return try {
-         ResultData.Success(dataStore.findBy(predicate))
+         ResultData.Success(_dataStore.findBy(predicate))
       } catch (t: Throwable) {
          ResultData.Error(t)
       }
@@ -46,7 +44,7 @@ class PeopleRepository(
 
    override fun create(person: Person): ResultData<Unit> {
       return try {
-         dataStore.insert(person)
+         _dataStore.insert(person)
          ResultData.Success(Unit)
       } catch (t: Throwable) {
          ResultData.Error(t)
@@ -55,7 +53,7 @@ class PeopleRepository(
 
    override fun update(person: Person): ResultData<Unit> {
       return try {
-         dataStore.update(person)
+         _dataStore.update(person)
          ResultData.Success(Unit)
       } catch (t: Throwable) {
          ResultData.Error(t)
@@ -64,7 +62,7 @@ class PeopleRepository(
 
    override fun remove(person: Person): ResultData<Unit> {
       return try {
-         dataStore.delete(person.id)
+         _dataStore.delete(person.id)
          ResultData.Success(Unit)
       } catch (t: Throwable) {
          ResultData.Error(t)
@@ -73,7 +71,7 @@ class PeopleRepository(
 
    override fun readDataStore(): ResultData<Unit> {
       return try {
-         dataStore.readDataStore()
+         _dataStore.readDataStore()
          ResultData.Success(Unit)
       } catch (t: Throwable) {
          ResultData.Error(t)

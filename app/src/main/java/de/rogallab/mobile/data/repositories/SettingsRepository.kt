@@ -1,32 +1,31 @@
 package de.rogallab.mobile.data.repositories
 import android.content.Context
 import android.content.SharedPreferences
-import de.rogallab.mobile.data.ISettingsRepository
-import de.rogallab.mobile.domain.entities.SensorSettings
+import de.rogallab.mobile.domain.ISettingsRepository
+import de.rogallab.mobile.domain.entities.Settings
 
 class SettingsRepository(
    context: Context
 ): ISettingsRepository {
 
-   private val sharedPreferences: SharedPreferences =
-      context.getSharedPreferences("sensor_settings", Context.MODE_PRIVATE)
+   private val _sharedPreferences: SharedPreferences =
+      context.getSharedPreferences("settings", Context.MODE_PRIVATE)
 
-   override fun getSensorSettings(): SensorSettings {
-      return SensorSettings(
-         isLocationSensorEnabled = sharedPreferences.getBoolean("locations_sensor", false),
-         isPressureSensorEnabled = sharedPreferences.getBoolean("pressure_sensor", true),
-         isLightSensorEnabled = sharedPreferences.getBoolean("light_sensor", true),
-         isTemperatureSensorEnabled = sharedPreferences.getBoolean("temperature_sensor", true),
-         isHumiditySensorEnabled = sharedPreferences.getBoolean("humidity_sensor", true)
+   override fun getSettings(): Settings {
+      return Settings(
+         isLocationSensorEnabled = _sharedPreferences.getBoolean("locations_sensor", false),
+         isPressureSensorEnabled = _sharedPreferences.getBoolean("pressure_sensor", true),
+         isLightSensorEnabled = _sharedPreferences.getBoolean("light_sensor", true),
+         isOrientationSensorEnabled = _sharedPreferences.getBoolean("orientation_sensor", false),
       )
    }
 
-   override fun saveSensorSettings(settings: SensorSettings) {
-      sharedPreferences.edit().apply {
+   override fun saveSettings(settings: Settings) {
+      _sharedPreferences.edit().apply {
+         putBoolean("locations_sensor", settings.isLocationSensorEnabled)
          putBoolean("pressure_sensor", settings.isPressureSensorEnabled)
          putBoolean("light_sensor", settings.isLightSensorEnabled)
-         putBoolean("temperature_sensor", settings.isTemperatureSensorEnabled)
-         putBoolean("humidity_sensor", settings.isHumiditySensorEnabled)
+         putBoolean("orientation_sensor", settings.isOrientationSensorEnabled)
          apply()
       }
    }

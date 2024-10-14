@@ -69,16 +69,11 @@ fun PeopleSwipeListScreen(
 
    // Observe the peopleUiState of the viewmodel
    val peopleUiState by viewModel.peopleUiStateFlow.collectAsStateWithLifecycle()
-
-   val activity = LocalContext.current as Activity
-
-   // Back navigation
-   BackHandler(
-      enabled = true,
-      onBack = {
-         activity.finish()
-      }
-   )
+   // Handle back navigation
+   BackHandler{
+      logInfo(tag, "BackHandler -> navigate to Home")
+      viewModel.navigateTo(NavEvent.NavigateBack(NavScreen.Home.route))
+   }
 
    val undoDeletePerson = stringResource(R.string.undoDeletePerson)
    val undoAnswer = stringResource(R.string.undoAnswer)

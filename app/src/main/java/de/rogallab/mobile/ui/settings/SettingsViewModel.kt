@@ -3,12 +3,15 @@ package de.rogallab.mobile.ui.settings
 import android.app.Application
 import android.content.Context
 import androidx.lifecycle.viewModelScope
-import de.rogallab.mobile.data.ISettingsRepository
+import de.rogallab.mobile.domain.ISettingsRepository
 import de.rogallab.mobile.data.repositories.SettingsRepository
-import de.rogallab.mobile.domain.entities.SensorSettings
+import de.rogallab.mobile.domain.entities.Settings
 import de.rogallab.mobile.ui.base.BaseViewModel
+import de.rogallab.mobile.ui.navigation.NavEvent
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class SettingsViewModel(
@@ -21,25 +24,40 @@ class SettingsViewModel(
       SettingsRepository(_context)
 
    // Expose sensor state to the UI via a StateFlow
-   private val _sensorSettings = MutableStateFlow(SensorSettings())
-   val sensorSettings: StateFlow<SensorSettings> = _sensorSettings
+   private val _settingsUiStateFlow:MutableStateFlow<SettingsUiState>
+      = MutableStateFlow(SettingsUiState())
+   val settingsUiStateFlow: StateFlow<SettingsUiState>
+      = _settingsUiStateFlow.asStateFlow()
 
    init {
       loadSettings()
    }
 
    private fun loadSettings() {
-      _sensorSettings.value = settingsRepository.getSensorSettings()
+      val settings = settingsRepository.getSettings()
+      _settingsUiStateFlow.update { settingsUiState: SettingsUiState ->
+         settingsUiState.copy(
+            isLocationSensorEnabled = settings.isLocationSensorEnabled,
+            isPressureSensorEnabled = settings.isPressureSensorEnabled,
+            isLightSensorEnabled = settings.isLightSensorEnabled,
+            isOrientationSensorEnabled = settings.isOrientationSensorEnabled
+         )
+      }
    }
 
-   fun updateSettings(settings: SensorSettings) {
-      _sensorSettings.value = settings
+   fun updateSettings(settingsUiState: SettingsUiState) {
+      val settings = Settings(
+         isLocationSensorEnabled = settingsUiState.isLocationSensorEnabled,
+         isPressureSensorEnabled = settingsUiState.isPressureSensorEnabled,
+         isLightSensorEnabled = settingsUiState.isLightSensorEnabled,
+         isOrientationSensorEnabled = settingsUiState.isOrientationSensorEnabled
+      )
       saveSettings(settings)
    }
 
-   private fun saveSettings(settings: SensorSettings) {
+   private fun saveSettings(settings: Settings) {
       viewModelScope.launch {
-         settingsRepository.saveSensorSettings(settings)
+         settingsRepository.saveSettings(settings)
       }
    }
 

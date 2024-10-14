@@ -7,18 +7,29 @@
     android:required="true" />
   <uses-permission android:name="android.permission.CAMERA" />
   <uses-permission android:name="android.permission.RECORD_AUDIO" />
+  <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+  <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+  <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+  <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
+  <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" />
   <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+  <uses-permission android:name="android.permission.INTERNET" />
   <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+  <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
+
+  <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+  <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+
   <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
   <uses-feature
     android:name="android.hardware.location.gps"
     android:required="false" />
   <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-  <!-- only need for background location tracking -->
-<!--  <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />-->
-
+  <!-- location tracking as foreground servic-->
+  <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION" />
 
   <application
+    android:name=".AppStart"
     android:allowBackup="true"
     android:dataExtractionRules="@xml/data_extraction_rules"
     android:enableOnBackInvokedCallback="true"
@@ -41,11 +52,15 @@
       </intent-filter>
     </activity>
 
-    <meta-data
+
+
+    <service
+      android:name=".domain.location.AppLocationService"
+      android:foregroundServiceType="location" />
+
+  <meta-data
       android:name="com.google.android.geo.API_KEY"
       android:value="${GOOGLE_MAPS_API_KEY}" />
-
   </application>
-
 
 </manifest>

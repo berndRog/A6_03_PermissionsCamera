@@ -19,11 +19,14 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import de.rogallab.mobile.domain.utilities.logInfo
+import de.rogallab.mobile.ui.camera.CameraScreen
+import de.rogallab.mobile.ui.camera.CameraViewModel
 import de.rogallab.mobile.ui.home.HomeScreen
 import de.rogallab.mobile.ui.home.HomeViewModel
 import de.rogallab.mobile.ui.navigation.INavigationHandler
 import de.rogallab.mobile.ui.navigation.NavEvent
 import de.rogallab.mobile.ui.navigation.NavScreen
+import de.rogallab.mobile.ui.navigation.NavUiState
 import de.rogallab.mobile.ui.navigation.NavigationViewModel
 import de.rogallab.mobile.ui.people.PeopleViewModel
 import de.rogallab.mobile.ui.people.composables.PeopleSwipeListScreen
@@ -41,13 +44,14 @@ fun AppNavHost(
    navController: NavHostController = rememberNavController(),
    // Injecting the ViewModel by koin()
    homeViewModel: HomeViewModel = viewModel(),
-   peopleViewModel: PeopleViewModel, //,
+   peopleViewModel: PeopleViewModel, // = viewModel(),
+   cameraViewModel: CameraViewModel, // = viewModel(),
    locationsViewModel: LocationsViewModel, // = viewModel(),
    sensorsViewModel: SensorsViewModel, // = viewModel()
    settingsViewModel: SettingsViewModel, // = viewModel(),
    navigationViewModel: NavigationViewModel, // = viewModel(),
 ) {
-   val tag = "<AppNavHost>"
+   val tag = "<-AppNavHost"
    val duration = 1000  // in milliseconds
    // create a NavHostController with a factory function
 
@@ -59,27 +63,26 @@ fun AppNavHost(
       popEnterTransition = { popEnterTransition(duration) },
       popExitTransition = { popExitTransition(duration) }
    ) {
-
+      // H O M E ---------------------------------------------------------------
       composable( route = NavScreen.Home.route ) {
          HomeScreen(
             viewModel = homeViewModel,
             navController = navController
          )
       }
+      // P E O P L E ---------------------------------------------------------
       composable( route = NavScreen.PeopleList.route ) {
          PeopleSwipeListScreen(
             viewModel = peopleViewModel,
             navController = navController
          )
       }
-
       composable( route = NavScreen.PersonInput.route ) {
          PersonScreen(
             viewModel = peopleViewModel,
             isInputScreen = true
          )
       }
-
       composable(
          route = NavScreen.PersonDetail.route + "/{personId}",
          arguments = listOf(navArgument("personId") { type = NavType.StringType}),
@@ -91,21 +94,27 @@ fun AppNavHost(
             id = id
          )
       }
-
+      // C A M E R A (Photo&Video) --------------------------------------------
+      composable( route = NavScreen.Camera.route )  {
+         CameraScreen(
+            viewModel = cameraViewModel
+         )
+      }
+      // L O C A T I O N S ----------------------------------------------------
       composable( route = NavScreen.LocationsList.route )  {
          LocationsListScreen(
             viewModel = locationsViewModel,
             navController = navController
          )
       }
-
+      // S E N S O R S ---------------------------------------------------------
       composable( route = NavScreen.SensorsList.route ) {
          SensorsListScreen(
             viewModel = sensorsViewModel,
             navController = navController
          )
       }
-
+      // S E T T I N G S --------------------------------------------------------
       composable( route = NavScreen.Settings.route ) {
          SettingsScreen(
             settingsViewModel = settingsViewModel
@@ -117,7 +126,6 @@ fun AppNavHost(
    // Observing the navigation state and handle navigation
 //   val navUiState1: NavUiState by peopleViewModel.navUiStateFlow.collectAsStateWithLifecycle()
 //   val navUiState2: NavUiState by locationsViewModel.navUiStateFlow.collectAsStateWithLifecycle()
-//   val navUiState3: NavUiState by peopleViewModel.navUiStateFlow.collectAsStateWithLifecycle()
 
    // Combine navUiStateFlow from multiple ViewModels
    val combinedNavEvent: NavEvent? by combine(
@@ -125,13 +133,18 @@ fun AppNavHost(
       peopleViewModel.navUiStateFlow,
       locationsViewModel.navUiStateFlow,
       sensorsViewModel.navUiStateFlow,
+      //settingsViewModel.navUiStateFlow,
       navigationViewModel.navUiStateFlow
-   ) { homeNavUiState, peopleNavUiState, locationsNavUiState, sensorsNavUiState, navigationNavUiState ->
+   ) { homeNavUiState, peopleNavUiState,
+       locationsNavUiState, sensorsNavUiState,
+       //settingsNavUiState,
+       navigationNavUiState ->
       // Combine the states as needed, here we just return the first non-null event
       homeNavUiState.event ?:
       peopleNavUiState.event ?:
       locationsNavUiState.event ?:
       sensorsNavUiState.event ?:
+      //settingsNavUiState.event ?:
       navigationNavUiState.event
    }.collectAsStateWithLifecycle(initialValue = null)
 

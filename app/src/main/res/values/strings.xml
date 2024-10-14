@@ -23,10 +23,12 @@
   <string name="permissionRequired">Permission required</string>
   <string name="permissionCamera">The app requires access to the camera to take a photo.</string>
   <string name="permissionAudio">"The app needs access to your microphone, to transmit youre voice. "</string>
+  <string name="permissionExternalStorage">The app requires access to the external storage to read or write a photo or video.</string>
   <string name="permissionCoarseLocation">The app requires access to coarse geolocation to determine your position.</string>
   <string name="permissionFineLocation">The app requires access to fine geolocation to determine its position.</string>
-  <string name="declinedAudio">Unfortunately you have permanently denied microphone sharing. You can now only grant permission via app settings.</string>
   <string name="declinedCamera">Unfortunately you have permanently denied camera sharing. You can now only grant permission via app settings.</string>
+  <string name="declinedAudio">Unfortunately you have permanently denied microphone sharing. You can now only grant permission via app settings.</string>
+  <string name="declinedExternalStorage">Unfortunately you have permanently denied access to external storage. You can now only grant permission via app settings.</string>
   <string name="declinedCoarseLocation">Unfortunately, you have permanently denied access to coarse location sharing. You can now only grant permission via the app settings.</string>
   <string name="declinedFineLocation">Unfortunately, you have permanently denied access to fine location sharing. You can now only grant permission via the app settings.</string>
   <string name="refuse">refuse</string>
