@@ -56,14 +56,14 @@ sealed class NavScreen(
 
    data object Camera: NavScreen(
       route = "Camera&VideoScreen",
-      title = "Camera & Video",
+      title = "Camera",
       selectedIcon = Icons.Outlined.PhotoCamera,
       unSelectedIcon = Icons.Filled.PhotoCamera
    )
 
    data object LocationsList: NavScreen(
       route = "LocationsListScreen",
-      title = "Positionen",
+      title = "Position",
       selectedIcon = Icons.Outlined.LocationOn,
       unSelectedIcon = Icons.Filled.LocationOn
    )

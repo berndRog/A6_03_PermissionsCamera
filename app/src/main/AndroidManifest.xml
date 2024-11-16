@@ -25,8 +25,8 @@
     android:name="android.hardware.location.gps"
     android:required="false" />
   <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-  <!-- location tracking as foreground servic-->
-  <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION" />
+
+  <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION"/>
 
   <application
     android:name=".AppStart"
@@ -47,18 +47,24 @@
       android:theme="@style/Theme.A5_01_ScaffoldNavigation">
       <intent-filter>
         <action android:name="android.intent.action.MAIN" />
-
         <category android:name="android.intent.category.LAUNCHER" />
       </intent-filter>
     </activity>
 
-
-
+    <!-- foreground services for location service -->
     <service
-      android:name=".domain.location.AppLocationService"
+      android:name=".ui.sensors.location.services.AppLocationService"
+      android:enabled="true"
+      android:exported="false"
       android:foregroundServiceType="location" />
 
-  <meta-data
+    <!-- foreground services for sensor service -->
+    <service
+      android:name=".ui.sensors.orientation.services.AppSensorService"
+      android:enabled="true"
+      android:exported="false" />
+
+    <meta-data
       android:name="com.google.android.geo.API_KEY"
       android:value="${GOOGLE_MAPS_API_KEY}" />
   </application>

@@ -53,7 +53,8 @@ fun HandleLocationPermissions(
    val singlePermissionLauncher = rememberLauncherForActivityResult(
       contract = ActivityResultContracts.RequestPermission()
    ) { granted ->
-      val currentPermission = permissionsQueue.poll() // Remove the current permission from the queue
+      val currentPermission = permissionsQueue.poll()
+         ?: throw IllegalStateException("Permission queue is empty") // Remove the current permission from the queue
       if (granted) {
          logDebug(tag, "$currentPermission = $granted")
          if (permissionsQueue.isNotEmpty()) {

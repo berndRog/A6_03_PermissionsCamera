@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
   <string name="app_name">PermissionsCamera</string>
-  <string name="person_input">Person hinzufügen</string>
-  <string name="person_detail">Person bearbeiten</string>
-  <string name="people_list">Personen</string>
-  <string name="firstname">Vorname</string>
-  <string name="lastname">Nachname</string>
+  <string name="personInput">Person hinzufügen</string>
+  <string name="personDetail">Person bearbeiten</string>
+  <string name="peopleList">Personen</string>
+  <string name="firstName">Vorname</string>
+  <string name="lastName">Nachname</string>
   <string name="email">E-Mail Adresse</string>
   <string name="phone">Telefonnummer</string>
   <string name="errorCharMin">2</string>
   <string name="errorCharMax">16</string>
-  <string name="errorFirstnameTooShort">Vorname ist zu kurz</string>
-  <string name="errorFirstnameTooLong">Vorname ist zu lang</string>
+  <string name="errorFirstNameTooShort">Vorname ist zu kurz</string>
+  <string name="errorFirstNameTooLong">Vorname ist zu lang</string>
   <string name="errorLastNameTooShort">Nachname ist zu kurz</string>
   <string name="errorLastNameTooLong">Nachname ist zu lang</string>
   <string name="errorEmail">E-Mail Adresse ist ungültig</string>
@@ -36,7 +36,7 @@
   <string name="agree">Zustimmen</string>
   <string name="selectPhotoFromGallery">Bitte wählen Sie ein Foto aus</string>
   <string name="takePhotoWithCamera">Bitte nehmen Sie ein Foto auf</string>
-  <string name="locations_list">Standorte</string>
-  <string name="sensors_list">Sensoren</string>
+  <string name="locationsList">Standorte</string>
+  <string name="sensorsList">Sensoren</string>
 
 </resources>

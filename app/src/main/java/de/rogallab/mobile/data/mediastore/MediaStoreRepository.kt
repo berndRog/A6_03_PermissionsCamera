@@ -7,6 +7,7 @@ import android.net.Uri
 import android.os.Environment
 import android.provider.MediaStore
 import de.rogallab.mobile.domain.IMediaStoreRepository
+import de.rogallab.mobile.domain.utilities.logDebug
 import de.rogallab.mobile.domain.utilities.logError
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -14,9 +15,10 @@ import java.io.File
 import java.io.IOException
 import java.io.InputStream
 import java.io.OutputStream
+import java.util.UUID
 
 class MediaStoreRepository(
-   private val context: Context
+   private val _context: Context
 ) : IMediaStoreRepository {
 
    // return the uri of the saved image
@@ -24,7 +26,7 @@ class MediaStoreRepository(
       bitmap: Bitmap
    ): String? = withContext(Dispatchers.IO) {
       // resolver is used to access the MediaStore
-      val resolver = context.contentResolver
+      val resolver = _context.contentResolver
 
       // imageCollection is the directory where the image will be saved
       val imageCollection = MediaStore.Images.Media.getContentUri(
@@ -59,6 +61,7 @@ class MediaStoreRepository(
             resolver.update(
                uri, imageContentValues, null, null
             )
+            logDebug(TAG, "savedImage: $uri")
             return@withContext uri.toString()
 
          } catch (e: Exception) {
@@ -75,7 +78,7 @@ class MediaStoreRepository(
       file: File
    ): String? = withContext(Dispatchers.IO) {
       // resolver is used to access the MediaStore
-      val resolver = context.contentResolver
+      val resolver = _context.contentResolver
 
       // videoCollection is the directory where the video will be saved
       val videoCollection = MediaStore.Video.Media.getContentUri(
@@ -116,12 +119,13 @@ class MediaStoreRepository(
             resolver.update(
                uri, videoContentValues, null, null
             )
+            logDebug(TAG, "savedVideo: $uri")
             return@withContext uri.toString()
 
          } catch (e: Exception) {
             logError("MediaStoreUtil", "Failed to save image")
             resolver.delete(uri, null, null)
-            throw IOException("Failed to save image", e)
+            // throw IOException("Failed to save image", e)
             return@withContext null
          }
       } // end of let
@@ -132,7 +136,7 @@ class MediaStoreRepository(
       file: File
    ): String? = withContext(Dispatchers.IO) {
       // resolver is used to access the MediaStore
-      val resolver = context.contentResolver
+      val resolver = _context.contentResolver
 
       // videoCollection is the directory where the video will be saved
       val audioCollection = MediaStore.Audio.Media.getContentUri(
@@ -173,15 +177,21 @@ class MediaStoreRepository(
             resolver.update(
                uri, audioContentValues, null, null
             )
+            logDebug(TAG, "savedAudio: $uri")
             return@withContext uri.toString()
 
          } catch (e: Exception) {
             logError("MediaStoreUtil", "Failed to save audio file")
             resolver.delete(uri, null, null)
-            throw IOException("Failed to save audio file", e)
+            // throw IOException("Failed to save audio file", e)
             return@withContext null
          }
       } // end of let
    } // end of withContext
+
+   companion object {
+      private const val TAG = "<-MediaStoreRepository"
+   }
+
 
 } //

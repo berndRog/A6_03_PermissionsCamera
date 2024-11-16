@@ -5,6 +5,5 @@ import de.rogallab.mobile.domain.entities.Person
 
 @Immutable
 data class PersonUiState(
-   val person: Person = Person(),
-   val throwable: Throwable? = null
+   val person: Person = Person()
 )

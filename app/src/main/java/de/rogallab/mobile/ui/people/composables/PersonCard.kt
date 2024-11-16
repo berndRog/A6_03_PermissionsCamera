@@ -23,7 +23,7 @@ fun PersonCard(
    lastName: String,
    email: String?,
    phone: String?,
-   imageUrl: String?,
+   imagePath: String?,
    modifier: Modifier = Modifier
 ) {
    Card(
@@ -58,7 +58,7 @@ fun PersonCard(
          }
 
          Column(modifier = Modifier.weight(0.15f)) {
-            imageUrl?.let { path: String ->                  // State ↓
+            imagePath?.let { path: String ->                  // State ↓
                AsyncImage(
                   model = path,
                   contentDescription = "Bild der Person",

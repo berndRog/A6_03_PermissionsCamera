@@ -8,9 +8,10 @@
  */
 plugins {
    alias(libs.plugins.android.application)
-   alias(libs.plugins.jetbrains.kotlin.android)
+   alias(libs.plugins.kotlin.android)
    alias(libs.plugins.google.devtools.ksp)
    alias(libs.plugins.kotlin.serialization)
+   alias(libs.plugins.kotlin.compose.compiler)
 
    alias(libs.plugins.google.map.secrets)
 }
@@ -67,7 +68,7 @@ android {
       buildConfig = true
    }
    composeOptions {
-      kotlinCompilerExtensionVersion = "1.5.14"
+      kotlinCompilerExtensionVersion = libs.versions.composeCompiler.get()
    }
    packaging {
       resources {
@@ -101,6 +102,7 @@ dependencies {
    implementation(libs.androidx.compose.ui.graphics)
    implementation(libs.androidx.compose.ui.tooling.preview)
    implementation(libs.androidx.compose.material3)
+   implementation(libs.androidx.ui.text.google.fonts)
    implementation(libs.material.icons.extended)
 
    // Ui Camera
@@ -140,26 +142,19 @@ dependencies {
    implementation(libs.play.services.location)
 
    // Koin
-   // https://insert-koin.io/docs/3.2.0/getting-started/android/
-   implementation(platform(libs.koin.bom))
    implementation(libs.koin.android)
    implementation(libs.koin.androidx.compose)
    implementation(libs.koin.androidx.startup)
 
-   // Java Compatibility
-   implementation (libs.koin.android.compat)
 
    // Ktor/Kotlin JSON Serializer
    implementation(libs.kotlinx.serialization.json)
-   implementation(libs.androidx.ui.text.google.fonts)
    implementation(libs.play.services.location)
    implementation(libs.androidx.lifecycle.process)
    // TESTS -----------------------
    testImplementation(libs.junit)
    testImplementation(libs.koin.test)
-   // Koin for JUnit 4 / 5
-   testImplementation(libs.koin.test.junit4)
-   testImplementation(libs.koin.test.junit5)
+   testImplementation(libs.koin.android.test)
 
    // ANDROID TESTS ---------------
    // https://developer.android.com/jetpack/androidx/releases/test
@@ -190,9 +185,7 @@ dependencies {
 
    // Koin Test features
    androidTestImplementation(libs.koin.test)
-   // Koin for JUnit 4/5
-   androidTestImplementation(libs.koin.test.junit4)
-   androidTestImplementation(libs.koin.test.junit5)
+   androidTestImplementation(libs.koin.android.test)
 
 //   debugImplementation(libs.androidx.ui.tooling)
    debugImplementation(libs.androidx.ui.test.manifest)

@@ -31,7 +31,6 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -51,11 +50,12 @@ import de.rogallab.mobile.ui.navigation.composables.AppBottomBar
 import de.rogallab.mobile.ui.sensors.location.LocationIntent
 import de.rogallab.mobile.ui.sensors.location.LocationUiState
 import de.rogallab.mobile.ui.sensors.location.LocationsViewModel
+import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LocationsListScreen(
-   viewModel: LocationsViewModel,
+   viewModel: LocationsViewModel = koinViewModel(),
    navController: NavController
 ) {
 
@@ -74,7 +74,7 @@ fun LocationsListScreen(
    // Handle back navigation
    BackHandler{
       logInfo(tag, "BackHandler -> navigate to Home")
-      viewModel.navigateTo(NavEvent.NavigateBack(NavScreen.Home.route))
+      viewModel.onNavigate(NavEvent.NavigateBack(NavScreen.Home.route))
    }
 
    val snackbarHostState = remember { SnackbarHostState() }
@@ -91,10 +91,10 @@ fun LocationsListScreen(
          .background(color = MaterialTheme.colorScheme.surface),
       topBar = {
          TopAppBar(
-            title = { Text(text = stringResource(R.string.locations_list)) },
+            title = { Text(text = stringResource(R.string.locationsList)) },
             navigationIcon = {
                IconButton(
-                  onClick = { viewModel.navigateTo(NavEvent.NavigateHome) }
+                  onClick = { viewModel.onNavigate(NavEvent.NavigateHome) }
                ) {
                   Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                      contentDescription = stringResource(R.string.back))

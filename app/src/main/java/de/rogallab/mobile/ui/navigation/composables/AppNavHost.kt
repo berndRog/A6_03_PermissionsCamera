@@ -5,12 +5,12 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
-import androidx.compose.material3.DrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavBackStackEntry
+import androidx.navigation.NavController
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -19,37 +19,42 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import de.rogallab.mobile.domain.utilities.logInfo
+import de.rogallab.mobile.ui.INavigationHandler
 import de.rogallab.mobile.ui.camera.CameraScreen
 import de.rogallab.mobile.ui.camera.CameraViewModel
 import de.rogallab.mobile.ui.home.HomeScreen
 import de.rogallab.mobile.ui.home.HomeViewModel
-import de.rogallab.mobile.ui.navigation.INavigationHandler
 import de.rogallab.mobile.ui.navigation.NavEvent
 import de.rogallab.mobile.ui.navigation.NavScreen
-import de.rogallab.mobile.ui.navigation.NavUiState
+import de.rogallab.mobile.ui.navigation.NavState
 import de.rogallab.mobile.ui.navigation.NavigationViewModel
 import de.rogallab.mobile.ui.people.PeopleViewModel
-import de.rogallab.mobile.ui.people.composables.PeopleSwipeListScreen
+import de.rogallab.mobile.ui.people.PersonValidator
+import de.rogallab.mobile.ui.people.composables.PeopleListScreen
 import de.rogallab.mobile.ui.people.composables.PersonScreen
-import de.rogallab.mobile.ui.sensors.environment_orientation.SensorsViewModel
-import de.rogallab.mobile.ui.sensors.environment_orientation.composables.SensorsListScreen
+import de.rogallab.mobile.ui.sensors.orientation.SensorsViewModel
+import de.rogallab.mobile.ui.sensors.orientation.composables.SensorsListScreen
 import de.rogallab.mobile.ui.sensors.location.LocationsViewModel
 import de.rogallab.mobile.ui.sensors.location.composables.LocationsListScreen
 import de.rogallab.mobile.ui.settings.SettingsScreen
 import de.rogallab.mobile.ui.settings.SettingsViewModel
 import kotlinx.coroutines.flow.combine
+import org.koin.androidx.compose.koinViewModel
+import org.koin.compose.koinInject
+import javax.xml.validation.Validator
 
 @Composable
 fun AppNavHost(
-   navController: NavHostController = rememberNavController(),
-   // Injecting the ViewModel by koin()
-   homeViewModel: HomeViewModel = viewModel(),
-   peopleViewModel: PeopleViewModel, // = viewModel(),
-   cameraViewModel: CameraViewModel, // = viewModel(),
-   locationsViewModel: LocationsViewModel, // = viewModel(),
-   sensorsViewModel: SensorsViewModel, // = viewModel()
-   settingsViewModel: SettingsViewModel, // = viewModel(),
+   navController: NavHostController = koinInject<NavHostController>(),
+   homeViewModel: HomeViewModel = koinViewModel<HomeViewModel>(),
+   peopleViewModel: PeopleViewModel = koinViewModel<PeopleViewModel>(),
+   cameraViewModel: CameraViewModel = koinViewModel<CameraViewModel>(),
+   locationsViewModel: LocationsViewModel = koinViewModel<LocationsViewModel>(),
+   sensorsViewModel: SensorsViewModel = koinViewModel<SensorsViewModel>(),
+   settingsViewModel: SettingsViewModel = koinViewModel<SettingsViewModel>(),
    navigationViewModel: NavigationViewModel, // = viewModel(),
+
+   personInputValidator: PersonValidator = koinInject<PersonValidator>()
 ) {
    val tag = "<-AppNavHost"
    val duration = 1000  // in milliseconds
@@ -72,7 +77,7 @@ fun AppNavHost(
       }
       // P E O P L E ---------------------------------------------------------
       composable( route = NavScreen.PeopleList.route ) {
-         PeopleSwipeListScreen(
+         PeopleListScreen(
             viewModel = peopleViewModel,
             navController = navController
          )
@@ -80,7 +85,8 @@ fun AppNavHost(
       composable( route = NavScreen.PersonInput.route ) {
          PersonScreen(
             viewModel = peopleViewModel,
-            isInputScreen = true
+            validator = personInputValidator,
+            isInputScreen = true,
          )
       }
       composable(
@@ -90,6 +96,7 @@ fun AppNavHost(
          val id = backStackEntry.arguments?.getString("personId")
          PersonScreen(
             viewModel = peopleViewModel,
+            validator = personInputValidator,
             isInputScreen = false,
             id = id
          )
@@ -124,39 +131,36 @@ fun AppNavHost(
    }
 
    // Observing the navigation state and handle navigation
-//   val navUiState1: NavUiState by peopleViewModel.navUiStateFlow.collectAsStateWithLifecycle()
-//   val navUiState2: NavUiState by locationsViewModel.navUiStateFlow.collectAsStateWithLifecycle()
+//   val navUiState1: NavState by peopleViewModel.navStateFlow.collectAsStateWithLifecycle()
+//   val navUiState2: NavState by locationsViewModel.navStateFlow.collectAsStateWithLifecycle()
 
-   // Combine navUiStateFlow from multiple ViewModels
+   // Combine navStateFlow from multiple ViewModels
    val combinedNavEvent: NavEvent? by combine(
-      homeViewModel.navUiStateFlow,
-      peopleViewModel.navUiStateFlow,
-      locationsViewModel.navUiStateFlow,
-      sensorsViewModel.navUiStateFlow,
-      //settingsViewModel.navUiStateFlow,
-      navigationViewModel.navUiStateFlow
-   ) { homeNavUiState, peopleNavUiState,
-       locationsNavUiState, sensorsNavUiState,
-       //settingsNavUiState,
-       navigationNavUiState ->
+      homeViewModel.navStateFlow,
+      cameraViewModel.navStateFlow,
+      peopleViewModel.navStateFlow,
+      locationsViewModel.navStateFlow,
+      sensorsViewModel.navStateFlow,
+      settingsViewModel.navStateFlow,
+      navigationViewModel.navStateFlow
+   ) { navStates: Array<NavState> ->
       // Combine the states as needed, here we just return the first non-null event
-      homeNavUiState.event ?:
-      peopleNavUiState.event ?:
-      locationsNavUiState.event ?:
-      sensorsNavUiState.event ?:
-      //settingsNavUiState.event ?:
-      navigationNavUiState.event
+      navStates.mapNotNull { it.navEvent }.firstOrNull()
    }.collectAsStateWithLifecycle(initialValue = null)
+
+   logInfo(tag, "combinedNavEvent: $combinedNavEvent")
 
    combinedNavEvent?.let { navEvent: NavEvent ->
       logInfo(tag, "navEvent: $navEvent")
       // check which ViewModel has the navEvent
       val navigationHandler: INavigationHandler = when {
-         homeViewModel.navUiStateFlow.value.event == navEvent -> homeViewModel
-         peopleViewModel.navUiStateFlow.value.event == navEvent -> peopleViewModel
-         locationsViewModel.navUiStateFlow.value.event == navEvent -> locationsViewModel
-         sensorsViewModel.navUiStateFlow.value.event == navEvent -> sensorsViewModel
-         navigationViewModel.navUiStateFlow.value.event == navEvent -> navigationViewModel
+         homeViewModel.navStateFlow.value.navEvent == navEvent -> homeViewModel
+         cameraViewModel.navStateFlow.value.navEvent == navEvent -> cameraViewModel
+         peopleViewModel.navStateFlow.value.navEvent == navEvent -> peopleViewModel
+         locationsViewModel.navStateFlow.value.navEvent == navEvent -> locationsViewModel
+         sensorsViewModel.navStateFlow.value.navEvent == navEvent -> sensorsViewModel
+         settingsViewModel.navStateFlow.value.navEvent == navEvent -> settingsViewModel
+         navigationViewModel.navStateFlow.value.navEvent == navEvent -> navigationViewModel
          else -> return@let
       }
 
@@ -256,6 +260,6 @@ private fun AnimatedContentTransitionScope<NavBackStackEntry>.popEnterTransition
 private fun AnimatedContentTransitionScope<NavBackStackEntry>.popExitTransition(
    duration: Int
 ) = scaleOut(
-   targetScale = 3.0f,
+   targetScale = 2.0f,
    animationSpec = tween(duration)
 ) + fadeOut(animationSpec = tween(duration))

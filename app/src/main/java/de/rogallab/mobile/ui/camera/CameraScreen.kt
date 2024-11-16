@@ -1,30 +1,22 @@
 package de.rogallab.mobile.ui.camera
 
-import android.Manifest
 import android.annotation.SuppressLint
 import android.content.ContentValues
 import android.content.Context
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
-import android.hardware.camera2.CameraCharacteristics
-import android.hardware.camera2.CameraManager
-import android.media.CamcorderProfile
 import android.media.MediaPlayer
-import android.media.MediaRecorder
 import android.net.Uri
 import android.os.Environment
 import android.provider.MediaStore
 import android.widget.Toast
+import androidx.activity.compose.BackHandler
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.ImageProxy
 import androidx.camera.video.FileOutputOptions
-import androidx.camera.video.Quality
-import androidx.camera.video.QualitySelector
-import androidx.camera.video.Recorder
 import androidx.camera.video.Recording
-import androidx.camera.video.VideoCapture
 import androidx.camera.video.VideoRecordEvent
 import androidx.camera.view.CameraController
 import androidx.camera.view.video.AudioConfig
@@ -45,8 +37,6 @@ import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.Snackbar
-import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberBottomSheetScaffoldState
@@ -56,160 +46,159 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.core.content.FileProvider
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import de.rogallab.mobile.R
 import de.rogallab.mobile.domain.utilities.logDebug
 import de.rogallab.mobile.domain.utilities.logError
 import de.rogallab.mobile.domain.utilities.logInfo
 import de.rogallab.mobile.ui.navigation.NavEvent
-import de.rogallab.mobile.ui.navigation.composables.AppBottomBar
+import de.rogallab.mobile.ui.navigation.NavScreen
 import de.rogallab.mobile.ui.theme.AppTheme
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import org.koin.androidx.compose.koinViewModel
 import java.io.File
 import java.io.File.separator
 import java.io.FileOutputStream
 import java.io.OutputStream
-import java.util.UUID
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CameraScreen(
-   viewModel: CameraViewModel,
-   tag:String = "<-CameraScreen"
+   viewModel: CameraViewModel = koinViewModel(),
+
 ) {
-   AppTheme {
-      val context = LocalContext.current
+   val tag: String = "<-CameraScreen"
 
-      var recordingState: MutableState<Recording?> = remember { mutableStateOf(null) }
+   BackHandler{
+      viewModel.onNavigate(NavEvent.NavigateBack(NavScreen.Home.route))
+   }
 
-      val bitmaps: List<Bitmap> by viewModel.bitmapsStateFlow.collectAsStateWithLifecycle()
+   val context = LocalContext.current
+   var recordingState: MutableState<Recording?> = remember { mutableStateOf(null) }
 
-      val scaffoldState = rememberBottomSheetScaffoldState()
-      val coroutineScope = rememberCoroutineScope()
+   val bitmaps: List<Bitmap> by viewModel.bitmapsStateFlow.collectAsStateWithLifecycle()
+   val scaffoldState = rememberBottomSheetScaffoldState()
+   val coroutineScope = rememberCoroutineScope()
 
-      BottomSheetScaffold(
-         topBar = {
-            TopAppBar(
-               title = { Text(text = "Kamera & Video") },
-               navigationIcon = {
-                  IconButton(
-                     onClick = { viewModel.navigateTo(NavEvent.NavigateHome) }
-                  ) {
-                     Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = stringResource(R.string.back))
-                  }
+   BottomSheetScaffold(
+      topBar = {
+         TopAppBar(
+            title = { Text(text = "Kamera & Video") },
+            navigationIcon = {
+               IconButton(
+                  onClick = { viewModel.onNavigate(NavEvent.NavigateHome) }
+               ) {
+                  Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                     contentDescription = stringResource(R.string.back))
                }
-            )
-         },
-         scaffoldState = scaffoldState,
-         sheetPeekHeight = 0.dp,
-         sheetContent = {
-            PhotoContent(
-               bitmaps = bitmaps,
-               modifier = Modifier.fillMaxWidth()
+            }
+         )
+      },
+      scaffoldState = scaffoldState,
+      sheetPeekHeight = 0.dp,
+      sheetContent = {
+         PhotoContent(
+            bitmaps = bitmaps,
+            modifier = Modifier.fillMaxWidth()
+         )
+      }
+   ) { paddingValues ->
+
+      Box(
+         modifier = Modifier
+            .fillMaxSize()
+            .padding(paddingValues)
+      ) {
+         CameraContent(
+            controller = viewModel.cameraController,
+            modifier = Modifier.fillMaxSize()
+         )
+
+         // CameraControls(
+         IconButton(
+            onClick = {
+               // switch camera front/back
+               viewModel.cameraController.cameraSelector =
+                  if (viewModel.cameraController.cameraSelector == CameraSelector.DEFAULT_BACK_CAMERA)
+                     CameraSelector.DEFAULT_FRONT_CAMERA
+                  else
+                     CameraSelector.DEFAULT_BACK_CAMERA
+            },
+            modifier = Modifier.offset(16.dp, 16.dp)
+         ) {
+            Icon(
+               imageVector = Icons.Default.Cameraswitch,
+               contentDescription = "Switch Front/Back"
             )
          }
-      ) { paddingValues ->
 
-         Box(
-            modifier = Modifier.fillMaxSize().padding(paddingValues)
+         Row(
+            modifier = Modifier
+               .fillMaxWidth()
+               .align(Alignment.BottomCenter)
+               .padding(16.dp),
+            horizontalArrangement = Arrangement.SpaceAround
          ) {
-            CameraContent(
-               controller = viewModel.cameraController,
-               modifier = Modifier.fillMaxSize()
-            )
-
-            // CameraControls(
             IconButton(
                onClick = {
-                  // switch camera front/back
-                  viewModel.cameraController.cameraSelector =
-                     if (viewModel.cameraController.cameraSelector == CameraSelector.DEFAULT_BACK_CAMERA)
-                        CameraSelector.DEFAULT_FRONT_CAMERA
-                     else
-                        CameraSelector.DEFAULT_BACK_CAMERA
-               },
-               modifier = Modifier.offset(16.dp, 16.dp)
+                  coroutineScope.launch {
+                     scaffoldState.bottomSheetState.expand()
+                  }
+               }
             ) {
                Icon(
-                  imageVector = Icons.Default.Cameraswitch,
-                  contentDescription = "Switch Front/Back"
+                  imageVector = Icons.Default.Photo,
+                  contentDescription = "Open Gallery"
+               )
+            }
+            IconButton(
+               onClick = {
+                  logInfo(tag, "Take photo")
+                  takePhoto(
+                     context = context,
+                     cameraController = viewModel.cameraController,
+                     cameraPermissions = viewModel.CAMERAX_PERMISSIONS,
+                     onPhotoTaken = viewModel::onAddPhoto
+                  )
+               }
+            ) {
+               Icon(
+                  imageVector = Icons.Default.PhotoCamera,
+                  contentDescription = "Take photo"
+               )
+            }
+            IconButton(
+               onClick = {
+                  logInfo(tag, "Record video start/stop")
+
+                  recordVideo(
+                     context = context,
+                     cameraController = viewModel.cameraController,
+                     recording = recordingState.value,
+                     onRecordVideo = { it -> recordingState.value = it },
+                     cameraPermissions = viewModel.CAMERAX_PERMISSIONS
+                  )
+               }
+            ) {
+               Icon(
+                  imageVector = Icons.Default.Videocam,
+                  contentDescription = "Record video"
                )
             }
 
-            Row(
-               modifier = Modifier
-                  .fillMaxWidth()
-                  .align(Alignment.BottomCenter)
-                  .padding(16.dp),
-               horizontalArrangement = Arrangement.SpaceAround
-            ) {
-               IconButton(
-                  onClick = {
-                     coroutineScope.launch {
-                        scaffoldState.bottomSheetState.expand()
-                     }
-                  }
-               ) {
-                  Icon(
-                     imageVector = Icons.Default.Photo,
-                     contentDescription = "Open Gallery"
-                  )
-               }
-               IconButton(
-                  onClick = {
-                     logInfo(tag, "Take photo")
-                     takePhoto(
-                        context = context,
-                        cameraController = viewModel.cameraController,
-                        cameraPermissions = viewModel.CAMERAX_PERMISSIONS,
-                        onPhotoTaken = viewModel::onAddPhoto
-                     )
-                  }
-               ) {
-                  Icon(
-                     imageVector = Icons.Default.PhotoCamera,
-                     contentDescription = "Take photo"
-                  )
-               }
-               IconButton(
-                  onClick = {
-                     logInfo(tag, "Record video start/stop")
-
-                     recordVideo(
-                        context = context,
-                        cameraController = viewModel.cameraController,
-                        recording = recordingState.value,
-                        onRecordVideo = { it -> recordingState.value = it },
-                        cameraPermissions = viewModel.CAMERAX_PERMISSIONS
-                     )
-                  }
-               ) {
-                  Icon(
-                     imageVector = Icons.Default.Videocam,
-                     contentDescription = "Record video"
-                  )
-               }
-
-            }
-
-
          }
+
       }
    }
 }
-
 
 private fun takePhoto(
    context: Context,
@@ -217,8 +206,8 @@ private fun takePhoto(
    cameraPermissions: Array<String>,
    onPhotoTaken: (Bitmap) -> Unit,
    tag: String = "<-CameraScreen"
-){
-   if( !hasRequiredPermission(context, cameraPermissions )) {
+) {
+   if (!hasRequiredPermission(context, cameraPermissions)) {
       logError(tag, "takePhoto(): Missing permissions to take a photo")
       return
    }
@@ -275,17 +264,17 @@ private fun recordVideo(
    tag: String = "<-CameraScreen"
 ) {
 
-   logInfo(tag,"recordVideo(): recording = $recording")
+   logInfo(tag, "recordVideo(): recording = $recording")
 
    // is recording running, then stop it
-   if( recording != null ) {
+   if (recording != null) {
       recording.stop()
       // set recording state (not recording)
       onRecordVideo(null)
       return
    }
 
-   if( !hasRequiredPermission(context, cameraPermissions )) {
+   if (!hasRequiredPermission(context, cameraPermissions)) {
       logError(tag, "recordVideo(): Missing permissions to record video")
       return
    }
@@ -294,7 +283,6 @@ private fun recordVideo(
    val fileDir: File = context.getDir("files", Context.MODE_PRIVATE)
 //   val file = File(videoDir, "${UUID.randomUUID()}.mp4")
    val file = File(fileDir, "myvideo.mp4")
-
 
 //
 //   val recorder = Recorder.Builder()
@@ -305,7 +293,6 @@ private fun recordVideo(
 //
 //   cameraController.videoCaptureQualitySelector = videoCapture
 //   cameraController.setVideoCapture(videoCapture)
-
 
    CoroutineScope(Dispatchers.Main).launch {
       cameraController.startRecording(
@@ -345,17 +332,13 @@ private fun recordVideo(
    }// end CoroutineScope(Dispatchers.Main).launch
 }
 
-
-
 private fun hasRequiredPermission(
    context: Context,
    cameraPermissions: Array<String>
 ): Boolean = cameraPermissions.all {
-      ContextCompat.checkSelfPermission(context, it) ==
-         PackageManager.PERMISSION_GRANTED
-   }
-
-
+   ContextCompat.checkSelfPermission(context, it) ==
+      PackageManager.PERMISSION_GRANTED
+}
 
 /// @param folderName can be your app's name
 private fun saveImage(
@@ -378,7 +361,7 @@ private fun saveImage(
       }
    } else {
       val directory = File(Environment.getExternalStorageDirectory().toString()
-            + separator + folderName)
+         + separator + folderName)
       // getExternalStorageDirectory is deprecated in API 29
 
       if (!directory.exists()) {
@@ -396,7 +379,7 @@ private fun saveImage(
    }
 }
 
-private fun contentValues() : ContentValues {
+private fun contentValues(): ContentValues {
    val values = ContentValues()
    values.put(MediaStore.Images.Media.MIME_TYPE, "image/png")
    values.put(MediaStore.Images.Media.DATE_ADDED, System.currentTimeMillis() / 1000);

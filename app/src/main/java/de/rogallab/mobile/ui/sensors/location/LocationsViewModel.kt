@@ -7,24 +7,34 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.location.Location
 import androidx.lifecycle.viewModelScope
-import de.rogallab.mobile.domain.location.AppLocationManager
-import de.rogallab.mobile.domain.location.AppLocationService
-import de.rogallab.mobile.domain.location.LocationValue
+import de.rogallab.mobile.domain.IAppLocationManager
+import de.rogallab.mobile.domain.model.LocationValue
+import de.rogallab.mobile.domain.utilities.logError
 import de.rogallab.mobile.ui.base.BaseViewModel
+import de.rogallab.mobile.ui.sensors.location.services.AppLocationService
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.koin.core.component.KoinComponent
-import org.koin.core.component.inject
 
 class LocationsViewModel(
    application: Application,
+   private val _locationManager: IAppLocationManager,
+   private val _ioDispatcher: CoroutineDispatcher = Dispatchers.IO
 ) : BaseViewModel(TAG), KoinComponent {
 
    private val _context: Context = application.applicationContext
-   private val _locationManager: AppLocationManager by inject()
+
+   private val coroutineExceptionHandler = CoroutineExceptionHandler { _, exception ->
+      // Handle the exception here
+      logError(TAG, "Coroutine exception: ${exception.localizedMessage}")
+   }
 
    // Expose location updates to the UI
    private val _locationUiStateFlow: MutableStateFlow<LocationUiState> =
@@ -91,20 +101,29 @@ class LocationsViewModel(
 
    private fun startLocationService() {
       viewModelScope.launch {
-         Intent(_context, AppLocationService::class.java).apply {
-            action = AppLocationService.Action.START.name
-            _context.startService(this)
+         withContext(_ioDispatcher + coroutineExceptionHandler) {
+            Intent(_context, AppLocationService::class.java).apply {
+               action = AppLocationService.Action.START.name
+               _context.startService(this)
+            }
          }
       }
    }
 
    private fun stopLocationService() {
       viewModelScope.launch {
-         Intent(_context, AppLocationService::class.java).apply {
-            action = AppLocationService.Action.STOP.name
-            _context.stopService(this)
+         withContext(_ioDispatcher + coroutineExceptionHandler) {
+            Intent(_context, AppLocationService::class.java).apply {
+               action = AppLocationService.Action.STOP.name
+               _context.stopService(this)
+            }
          }
       }
+   }
+
+   override fun onCleared() {
+      stopLocationService()
+      super.onCleared()
    }
 
    companion object {

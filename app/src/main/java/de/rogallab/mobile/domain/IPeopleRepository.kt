@@ -1,22 +1,17 @@
 package de.rogallab.mobile.domain
 
 import de.rogallab.mobile.domain.entities.Person
+import kotlinx.coroutines.flow.Flow
 
 interface IPeopleRepository {
 
-    fun getAll()
-       : ResultData<MutableList<Person>>
-    fun getWhere(predicate: (Person) -> Boolean)
-       : ResultData<MutableList<Person>>
-    fun findById(id: String)
-       : ResultData<Person?>
-    fun findBy(predicate: (Person) -> Boolean)
-       : ResultData<Person?>
+    fun getAll(): Flow<ResultData<List<Person>>>
+    fun getWhere(predicate: (Person) -> Boolean): Flow<ResultData<List<Person>>>
+    suspend fun getById(id: String): ResultData<Person?>
+    suspend fun getBy(predicate: (Person) -> Boolean): ResultData<Person?>
 
-    fun create(person: Person): ResultData<Unit>
-    fun update(person: Person): ResultData<Unit>
-    fun remove(person: Person): ResultData<Unit>
-
-    fun readDataStore(): ResultData<Unit>
+    suspend fun create(person: Person): ResultData<Unit>
+    suspend fun update(person: Person): ResultData<Unit>
+    suspend fun remove(person: Person): ResultData<Unit>
 
 }

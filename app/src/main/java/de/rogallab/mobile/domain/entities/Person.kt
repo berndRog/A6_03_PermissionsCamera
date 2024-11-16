@@ -9,7 +9,6 @@ data class Person(
    val lastName: String = "",
    val email: String? = null,
    val phone:String? = null,
-   val localImagePath: String? = null,
-   val imageUrl: String? = null,
+   val imagePath: String? = null,
    val id: String = UUID.randomUUID().toString()
 )

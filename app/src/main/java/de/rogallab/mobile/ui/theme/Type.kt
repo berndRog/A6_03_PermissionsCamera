@@ -103,7 +103,7 @@ val AppTypography = Typography(
    ),
    labelSmall = baseline.labelSmall.copy(
       fontFamily = bodyFontFamily,
-      fontSize   = 14.sp, // 11.sp,
+      fontSize   = 11.sp, // 11.sp,
       lineHeight = 16.sp  // 16.sp,
    ),
 )

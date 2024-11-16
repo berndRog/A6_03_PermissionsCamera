@@ -1,14 +1,10 @@
 package de.rogallab.mobile.ui.camera
 
-import android.app.Application
 import android.content.Context
 import android.graphics.Bitmap
-import androidx.camera.video.Recording
 import androidx.camera.view.CameraController
 import androidx.camera.view.LifecycleCameraController
-import androidx.compose.runtime.remember
 import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.ViewModel
 import de.rogallab.mobile.domain.utilities.logDebug
 import de.rogallab.mobile.ui.base.BaseViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -36,7 +32,6 @@ class CameraViewModel(
          )
       }
 
-
    private val _bitmapsStateFlow: MutableStateFlow<List<Bitmap>>
       = MutableStateFlow(emptyList())
    val bitmapsStateFlow: StateFlow<List<Bitmap>>
@@ -52,8 +47,6 @@ class CameraViewModel(
 
    companion object {
       private const val TAG = "<-CameraViewModel"
-
-
 
    }
 }

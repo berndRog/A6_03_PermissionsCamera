@@ -29,11 +29,12 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import de.rogallab.mobile.R
 import de.rogallab.mobile.ui.navigation.composables.AppBottomBar
+import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
-   viewModel: HomeViewModel? = null,
+   viewModel: HomeViewModel = koinViewModel(),
    navController: NavController? = null
 ) {
 

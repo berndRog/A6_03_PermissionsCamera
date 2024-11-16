@@ -1,6 +1,6 @@
 package de.rogallab.mobile.ui.sensors.location
 
-import de.rogallab.mobile.domain.location.LocationValue
+import de.rogallab.mobile.domain.model.LocationValue
 import de.rogallab.mobile.domain.utilities.RingBuffer
 
 data class LocationUiState(

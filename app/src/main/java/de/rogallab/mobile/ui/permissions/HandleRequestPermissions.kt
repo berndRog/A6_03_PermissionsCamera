@@ -166,16 +166,22 @@ fun filterPermissionsToRequest(
          return@forEach
       }
 
-      // don't request any location permissions (foreground services or background), they are handled separately
-      if (permission == Manifest.permission.ACCESS_COARSE_LOCATION ||
-         permission == Manifest.permission.ACCESS_FINE_LOCATION ||
-         permission == Manifest.permission.POST_NOTIFICATIONS ||
-         permission == Manifest.permission.FOREGROUND_SERVICE ||
-         permission == Manifest.permission.FOREGROUND_SERVICE_LOCATION
+//      // don't request any location permissions (foreground services or background), they are handled separately
+//      if (permission == Manifest.permission.ACCESS_COARSE_LOCATION ||
+//         permission == Manifest.permission.ACCESS_FINE_LOCATION ||
+//         permission == Manifest.permission.POST_NOTIFICATIONS ||
+//         permission == Manifest.permission.FOREGROUND_SERVICE ||
+//         permission == Manifest.permission.FOREGROUND_SERVICE_LOCATION
+//      ) {
+//         logDebug(tag, "not handled here     : $permission (separately handled)")
+//         return@forEach
+//      }
+      if (permission == Manifest.permission.FOREGROUND_SERVICE_LOCATION
       ) {
-         logDebug(tag, "not handled here     : $permission (separately handled)")
+         logDebug(tag, "no need to request, implicied granted")
          return@forEach
       }
+
       logDebug(tag, "Permission to request: $permission")
       onPermissionToRequest(permission)
    }

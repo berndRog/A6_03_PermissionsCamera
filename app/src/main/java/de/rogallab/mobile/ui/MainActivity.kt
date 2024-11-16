@@ -9,7 +9,6 @@ import android.net.Uri
 import android.os.Bundle
 import android.provider.Settings
 import androidx.activity.compose.setContent
-import androidx.activity.result.ActivityResultLauncher
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.DrawerValue
@@ -24,107 +23,96 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.NavController
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
+import de.rogallab.mobile.domain.utilities.logDebug
 import de.rogallab.mobile.domain.utilities.logError
 import de.rogallab.mobile.domain.utilities.logInfo
 import de.rogallab.mobile.ui.base.BaseActivity
-import de.rogallab.mobile.ui.camera.CameraViewModel
 import de.rogallab.mobile.ui.home.HomeScreen
 import de.rogallab.mobile.ui.navigation.NavigationViewModel
 import de.rogallab.mobile.ui.navigation.composables.AppDrawer
 import de.rogallab.mobile.ui.navigation.composables.AppNavHost
-import de.rogallab.mobile.ui.people.PeopleViewModel
-import de.rogallab.mobile.ui.permissions.PermissionsScreen
-import de.rogallab.mobile.ui.sensors.environment_orientation.SensorsViewModel
-import de.rogallab.mobile.ui.sensors.location.LocationsViewModel
-import de.rogallab.mobile.ui.settings.SettingsViewModel
+import de.rogallab.mobile.ui.permissions.HandlePermissions
 import de.rogallab.mobile.ui.theme.AppTheme
 import kotlinx.coroutines.CompletableDeferred
-import kotlinx.coroutines.launch
+import org.koin.android.ext.android.get
 import org.koin.android.ext.android.inject
-import org.koin.androidx.viewmodel.ext.android.viewModel
+import org.koin.compose.KoinContext
+import org.koin.compose.koinInject
 import org.koin.core.parameter.parametersOf
 
 class MainActivity : BaseActivity(TAG) {
 
-   private val _peopleViewModel: PeopleViewModel         by inject()
-   private val _cameraViewModel: CameraViewModel by viewModel {
-      parametersOf(this, this)
-   }
-   private val _locationsViewModel: LocationsViewModel   by inject()
-   private val _sensorsViewModel: SensorsViewModel       by inject()
-   private val _settingsViewModel: SettingsViewModel     by inject()
    private val _navigationViewModel: NavigationViewModel by inject()
-
-   private lateinit var permissionsRequestLauncher: ActivityResultLauncher<Array<String>>
 
    override fun onCreate(savedInstanceState: Bundle?) {
       super.onCreate(savedInstanceState)
 
-      // environment & orientation sensors don't need permissions to request
-      lifecycle.addObserver(_sensorsViewModel)
-
       setContent {
+         KoinContext() {
+            AppTheme {
+               Surface(modifier = Modifier.fillMaxSize()) {
+                  // Create the NavController
+                  val navController: NavHostController = rememberNavController()
+                  // Give Koin a function type parameter to the NavController
+                  val koinNavController: NavHostController =
+                     remember { get { parametersOf(navController) } }
 
-         AppTheme {
-            Surface(modifier = Modifier.fillMaxSize()) {
-               val drawerState = rememberDrawerState(DrawerValue.Closed)
-               val scope = rememberCoroutineScope()
+                  val drawerState = rememberDrawerState(DrawerValue.Closed)
+                  val scope = rememberCoroutineScope()
 
-               ModalNavigationDrawer(
-                  drawerState = drawerState,
-                  drawerContent = {
-                     Surface(
-                        modifier = Modifier.fillMaxWidth(0.75f), // Set the width of the drawer
-                     ) {
-                        AppDrawer(drawerState, _navigationViewModel, scope)
+                  ModalNavigationDrawer(
+                     drawerState = drawerState,
+                     drawerContent = {
+                        Surface(
+                           modifier = Modifier.fillMaxWidth(0.75f), // Set the width of the drawer
+                        ) {
+                           AppDrawer(drawerState, _navigationViewModel, scope)
+                        }
                      }
-                  }
-               ) {
+                  ) {
 
-                  // Request permissions, wait for the permissions result
-                  val permissionsDeferred: CompletableDeferred<Boolean> =
-                     remember { CompletableDeferred<Boolean>() }
+                     // Request permissions, wait for the permissions result
+                     val permissionsDeferred: CompletableDeferred<Boolean> =
+                        remember { CompletableDeferred<Boolean>() }
+                     // Wait for the permissions result, then continue
+                     var permissionsGranted: Boolean
+                        by remember { mutableStateOf<Boolean>(false) }
 
-                  PermissionsScreen(permissionsDeferred)
+                     logDebug(TAG, "HandlePermissions()")
+                     HandlePermissions(permissionsDeferred)
 
-                  // Wait for the permissions result, then continue
-                  var permissionsGranted: Boolean
-                     by remember { mutableStateOf<Boolean>(false) }
-                  var permissionsGrantedLocation: Boolean
-                     by remember { mutableStateOf<Boolean>(false) }
+                     // Show the home screen if permissions are not granted
+                     if (!permissionsGranted) HomeScreen()
 
-                  // Show the home screen if permissions are not granted
-                  if (!permissionsGranted) HomeScreen()
+                     LaunchedEffect(Unit) {
+                        // wait until permissions are granted
+                        permissionsGranted = permissionsDeferred.await()
+                        if (permissionsGranted) {
+                           logInfo(TAG, "Permissions are granted")
+                        } else {
+                           logError(TAG, "Permissions not granted")
+                        }
+                     }
 
-                  LaunchedEffect(Unit) {
-                     // Wait for the permissions result
-                     permissionsGranted = permissionsDeferred.await()
+                     // Show the app content if permissions are granted
                      if (permissionsGranted) {
-                        logInfo(TAG, "Permissions are granted")
-                     } else {
-                        logError(TAG, "Permissions not granted")
+                        AppNavHost(
+                           navController = koinNavController,
+//                        peopleViewModel = _peopleViewModel,
+//                        cameraViewModel = _cameraViewModel,
+//                        locationsViewModel = _locationsViewModel,
+//                        sensorsViewModel = _sensorsViewModel,
+//                        settingsViewModel = _settingsViewModel,
+                           navigationViewModel = _navigationViewModel
+                        )
                      }
-                  }
-
-                  // Show the app content if permissions are granted
-                  if (permissionsGranted) {
-                     AppNavHost(
-                        peopleViewModel = _peopleViewModel,
-                        cameraViewModel = _cameraViewModel,
-                        locationsViewModel = _locationsViewModel,
-                        sensorsViewModel = _sensorsViewModel,
-                        settingsViewModel = _settingsViewModel,
-                        navigationViewModel = _navigationViewModel
-                     )
-                  } else if (permissionsGranted == false) {
-                     logError(TAG, "Permissions not granted")
-                  }
-               } // ModalNavigationDrawer
-            } // Surface
-         } // AppTheme
+                  } // ModalNavigationDrawer
+               } // Surface
+            } // AppTheme
+         } // KoinContext
       } // setContent
    } // onCreate
 

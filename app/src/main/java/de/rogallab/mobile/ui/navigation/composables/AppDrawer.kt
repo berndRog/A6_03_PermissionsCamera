@@ -20,11 +20,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.compose.composable
 import de.rogallab.mobile.ui.navigation.NavEvent
 import de.rogallab.mobile.ui.navigation.NavScreen
 import de.rogallab.mobile.ui.navigation.NavigationViewModel
-import de.rogallab.mobile.ui.sensors.location.composables.LocationsListScreen
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -55,7 +53,7 @@ fun AppDrawer(
          onClick = {
             scope.launch { drawerState.close() }
             // Handle navigation
-            navigationViewModel.navigateTo(NavEvent.NavigateHome)
+            navigationViewModel.onNavigate(NavEvent.NavigateHome)
             navigationViewModel.onNavEventHandled()
          }
       )
@@ -66,7 +64,7 @@ fun AppDrawer(
          onClick = {
             scope.launch { drawerState.close() }
             // Handle navigation
-            navigationViewModel.navigateTo(
+            navigationViewModel.onNavigate(
                NavEvent.NavigateLateral(NavScreen.PeopleList.route))
             navigationViewModel.onNavEventHandled()
          }
@@ -79,7 +77,7 @@ fun AppDrawer(
          onClick = {
             scope.launch { drawerState.close() }
             // Handle navigation
-            navigationViewModel.navigateTo(
+            navigationViewModel.onNavigate(
                NavEvent.NavigateLateral(NavScreen.LocationsList.route))
             navigationViewModel.onNavEventHandled()
          }
@@ -91,7 +89,7 @@ fun AppDrawer(
          onClick = {
             scope.launch { drawerState.close() }
             // Handle navigation
-            navigationViewModel.navigateTo(
+            navigationViewModel.onNavigate(
                NavEvent.NavigateLateral(NavScreen.SensorsList.route))
             navigationViewModel.onNavEventHandled()
          }

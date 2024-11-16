@@ -9,12 +9,9 @@ import android.os.Build
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ProcessLifecycleOwner
-import de.rogallab.mobile.data.di.dataModules
-import de.rogallab.mobile.domain.di.domainModules
 import de.rogallab.mobile.domain.utilities.logInfo
-import de.rogallab.mobile.ui.di.uiModules
-import de.rogallab.mobile.domain.location.AppLocationService
-import de.rogallab.mobile.domain.sensors.AppSensorService
+import de.rogallab.mobile.ui.sensors.location.services.AppLocationService
+import de.rogallab.mobile.ui.sensors.orientation.services.AppSensorService
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.androix.startup.KoinStartup.onKoinStartup
@@ -38,7 +35,6 @@ class AppStart : Application(), DefaultLifecycleObserver {
 
 
    override fun onCreate() {
-
       super<Application>.onCreate()
 
       val maxMemory = (Runtime.getRuntime().maxMemory() / 1024 ).toInt()
@@ -65,9 +61,6 @@ class AppStart : Application(), DefaultLifecycleObserver {
 
          notificationManager.createNotificationChannel(notificationChannel)
          notificationManager.createNotificationChannel(orientationChannel)
-
-         val x = 3
-
       }
    }
 

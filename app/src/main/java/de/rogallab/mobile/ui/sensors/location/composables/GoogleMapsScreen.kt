@@ -26,9 +26,9 @@ import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.Polyline
 import com.google.maps.android.compose.rememberCameraPositionState
 import com.google.maps.android.compose.rememberMarkerState
-import de.rogallab.mobile.domain.location.LocationValue
+import de.rogallab.mobile.domain.model.LocationValue
 import de.rogallab.mobile.domain.utilities.logInfo
-import de.rogallab.mobile.ui.composables.SwitchWithLabel
+import de.rogallab.mobile.ui.people.composables.SwitchWithLabel
 import de.rogallab.mobile.ui.sensors.location.LocationIntent
 import de.rogallab.mobile.ui.sensors.location.LocationsViewModel
 

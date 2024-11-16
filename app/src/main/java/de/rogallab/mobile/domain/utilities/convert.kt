@@ -1,7 +1,7 @@
 package de.rogallab.mobile.domain.utilities
 
 import android.location.Location
-import de.rogallab.mobile.domain.location.LocationValue
+import de.rogallab.mobile.domain.model.LocationValue
 
 fun formatf11p7(value: Double): String {
    if(value >= 0) return "%11.7f".format(value)
